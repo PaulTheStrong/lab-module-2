@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.service.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("certificates")
+@RequestMapping("/certificates")
 public class GiftCertificateController {
 
+    private static final String CERTIFICATE_HAS_BEEN_ADDED = "Certificate has been added";
+    private static final String CERTIFICATE_HAS_BEEN_UPDATED = "Certificate has been updated";
+    private static final String CERTIFICATE_HAS_BEEN_DELETED = "Certificate has been deleted";
     private final CertificateService certificateService;
 
     @Autowired
@@ -22,13 +26,13 @@ public class GiftCertificateController {
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GiftCertificate getById(@PathVariable int id) {
+    public GiftCertificateDto getById(@PathVariable int id) {
         return certificateService.getById(id);
     }
 
     @GetMapping(value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GiftCertificate> getAll() {
+    public List<GiftCertificateDto> getAll() {
         return certificateService.getAll();
     }
 
@@ -37,7 +41,7 @@ public class GiftCertificateController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addCertificate(@RequestBody GiftCertificate giftCertificate) {
         certificateService.addCertificate(giftCertificate);
-        return new ResponseEntity<>("Certificate has been added", HttpStatus.OK);
+        return new ResponseEntity<>(CERTIFICATE_HAS_BEEN_ADDED, HttpStatus.OK);
     }
 
     @PatchMapping(value = "/{id}",
@@ -45,12 +49,12 @@ public class GiftCertificateController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> updateCertificate(@RequestBody GiftCertificate certificate, @PathVariable int id) {
         certificateService.updateCertificate(certificate, id);
-        return new ResponseEntity<>("Certificate has been updated", HttpStatus.OK);
+        return new ResponseEntity<>(CERTIFICATE_HAS_BEEN_UPDATED, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteCertificate(@PathVariable int id) {
         certificateService.deleteCertificate(id);
-        return new ResponseEntity<>("Certificate has been updated", HttpStatus.OK);
+        return new ResponseEntity<>(CERTIFICATE_HAS_BEEN_DELETED, HttpStatus.OK);
     }
 }

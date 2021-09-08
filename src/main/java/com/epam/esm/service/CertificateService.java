@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.exception.CertificateNotFoundException;
 import com.epam.esm.repository.Repository;
@@ -11,15 +12,18 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CertificateService {
 
     private final Repository<GiftCertificate> certificateRepository;
+    private final DtoMapper dtoMapper;
 
     @Autowired
-    public CertificateService(Repository<GiftCertificate> certificateRepository) {
+    public CertificateService(Repository<GiftCertificate> certificateRepository, DtoMapper dtoMapper) {
         this.certificateRepository = certificateRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     public void addCertificate(GiftCertificate giftCertificate) {
@@ -57,16 +61,16 @@ public class CertificateService {
         certificateRepository.update(oldEntity);
     }
 
-    public GiftCertificate getById(int id) {
+    public GiftCertificateDto getById(int id) {
         Optional<GiftCertificate> certificate = certificateRepository.getById(id);
         if (!certificate.isPresent()) {
             throw new CertificateNotFoundException();
         }
-        return certificate.get();
+        return dtoMapper.mapCertificateToDto(certificate.get());
     }
 
-    public List<GiftCertificate> getAll() {
-        return certificateRepository.getAll();
+    public List<GiftCertificateDto> getAll() {
+        return certificateRepository.getAll().stream().map(dtoMapper::mapCertificateToDto).collect(Collectors.toList());
     }
 
     public void deleteCertificate(int id) {

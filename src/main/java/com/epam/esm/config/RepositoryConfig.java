@@ -31,8 +31,6 @@ public class RepositoryConfig {
                                  @Value("${jdbc.url}") String connectionUrl,
                                  @Value("${jdbc.connections}") Integer connectionsNumber) {
         BasicDataSource basicDataSource = new BasicDataSource();
-        System.out.println(connectionsNumber);
-        System.out.println(username);
         basicDataSource.setUsername(username);
         basicDataSource.setPassword(password);
         basicDataSource.setDriverClassName(className);
