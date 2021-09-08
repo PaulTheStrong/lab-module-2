@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.ToString;
 
 @Data
-@AllArgsConstructor
-@ToString
 public class Tag implements Identifiable {
-    private int id;
+
+    int id;
     private String name;
+
 }

@@ -6,14 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
-@AllArgsConstructor
-@ToString
-//@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
-//                setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
-@NoArgsConstructor
 public class GiftCertificate implements Identifiable {
 
     private int id;
@@ -21,7 +17,7 @@ public class GiftCertificate implements Identifiable {
     private String description;
     private BigDecimal price;
     private Double duration;
-    private Date createDate;
-    private Date lastUpdateDate;
+    private LocalDateTime createDate;
+    private LocalDateTime lastUpdateDate;
 
 }

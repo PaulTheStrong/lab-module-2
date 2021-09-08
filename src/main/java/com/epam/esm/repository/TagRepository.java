@@ -6,23 +6,23 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
+import java.util.Optional;
 
 @org.springframework.stereotype.Repository
 public class TagRepository implements Repository<Tag> {
 
-    public static final String SELECT_BY_ID = "SELECT * FROM tag WHERE id=?";
+    public static final String GET_BY_ID = "SELECT * FROM tag WHERE id=?";
     public static final String GET_ALL = "SELECT * FROM tag";
-    private JdbcTemplate jdbcTemplate;
-    private RowMapper<Tag> mapper;
+    public static final String SAVE = "INSERT INTO tag (name) VALUES (?)";
+    public static final String UPDATE = "UPDATE tag SET name=? WHERE id=?";
+    public static final String DELETE_BY_ID = "DELETE FROM tag WHERE id = ?";
 
-    @Autowired
-    public void setMapper(RowMapper<Tag> mapper) {
-        this.mapper = mapper;
-    }
+    private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<Tag> mapper;
 
-    @Autowired
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+    public TagRepository(JdbcTemplate jdbcTemplate, RowMapper<Tag> mapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.mapper = mapper;
     }
 
     @Override
@@ -32,22 +32,22 @@ public class TagRepository implements Repository<Tag> {
 
     @Override
     public void save(Tag entity) {
-        jdbcTemplate.update("INSERT INTO tag (name) VALUES (?)", entity.getName());
+        jdbcTemplate.update(SAVE, entity.getName());
     }
 
     @Override
-    public Tag getById(int id) {
-        return jdbcTemplate.queryForObject(SELECT_BY_ID, mapper, id);
+    public Optional<Tag> getById(int id) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(GET_BY_ID, mapper, id));
     }
 
     @Override
     public void update(Tag entity) {
-        jdbcTemplate.update("UPDATE tag SET name=? WHERE id=?", entity.getName(), entity.getId());
+        jdbcTemplate.update(UPDATE, entity.getName(), entity.getId());
     }
 
     @Override
     public void delete(int id) {
-        jdbcTemplate.update("DELETE FROM tag WHERE id = ?", id);
+        jdbcTemplate.update(DELETE_BY_ID, id);
     }
 }
 

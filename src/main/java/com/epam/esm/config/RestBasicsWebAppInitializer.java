@@ -11,7 +11,7 @@ public class RestBasicsWebAppInitializer
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[] {AppConfig.class};
+        return new Class[] {RepositoryConfig.class};
     }
 
     @Override

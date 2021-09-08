@@ -21,33 +21,29 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = "com.epam.esm")
 @PropertySource("classpath:db.properties")
-@EnableWebMvc
-public class AppConfig implements WebMvcConfigurer {
-
-    public Environment env;
-
-    @Autowired
-    public void setEnvironment(Environment env) {
-        this.env = env;
-    }
+public class RepositoryConfig {
 
     @Bean
-    public DataSource dataSource() {
-        System.out.println("Creating dataSource");
+    public DataSource dataSource(@Value("${jdbc.username}") String username,
+                                 @Value("${jdbc.password}") String password,
+                                 @Value("${jdbc.driverClassName}") String className,
+                                 @Value("${jdbc.url}") String connectionUrl,
+                                 @Value("${jdbc.connections}") Integer connectionsNumber) {
         BasicDataSource basicDataSource = new BasicDataSource();
-        basicDataSource.setUsername(env.getProperty("jdbc.username"));
-        basicDataSource.setPassword(env.getProperty("jdbc.password"));
-        basicDataSource.setDriverClassName(env.getProperty("jdbc.driverClassName"));
-        basicDataSource.setUrl(env.getProperty("jdbc.url"));
-        basicDataSource.setMaxActive(env.getProperty("jdbc.connections", Integer.class));
+        System.out.println(connectionsNumber);
+        System.out.println(username);
+        basicDataSource.setUsername(username);
+        basicDataSource.setPassword(password);
+        basicDataSource.setDriverClassName(className);
+        basicDataSource.setUrl(connectionUrl);
+        basicDataSource.setMaxActive(connectionsNumber);
         return basicDataSource;
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource());
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
     }
 
     @Bean
@@ -63,10 +59,5 @@ public class AppConfig implements WebMvcConfigurer {
     @Bean
     public RowMapper<Tag> tagBeanPropertyRowMapper() {
         return new BeanPropertyRowMapper<>(Tag.class);
-    }
-
-    @Override
-    public void configureViewResolvers(ViewResolverRegistry registry) {
-        registry.enableContentNegotiation(new MappingJackson2JsonView());
     }
 }
