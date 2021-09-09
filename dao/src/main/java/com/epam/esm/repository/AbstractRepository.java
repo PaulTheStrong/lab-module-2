@@ -1,6 +1,5 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Identifiable;
 import org.springframework.jdbc.core.RowMapper;
 

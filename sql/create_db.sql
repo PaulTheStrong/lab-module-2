@@ -4,8 +4,8 @@ create table gift_certificate (
       description varchar(255),
       price DECIMAL(10),
       duration FLOAT,
-      create_date DATE,
-      last_update_date DATE);
+      create_date DATETIME,
+      last_update_date DATETIME);
 
 create table tag (
      id BIGINT auto_increment not null primary key,

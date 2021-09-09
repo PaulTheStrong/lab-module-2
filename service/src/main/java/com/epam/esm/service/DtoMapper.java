@@ -2,7 +2,6 @@ package com.epam.esm.service;
 
 import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
