@@ -1,0 +1,30 @@
+apply plugin: 'java'
+
+group 'com.epam.esm'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    implementation project(":dao")
+
+    implementation 'org.springframework:spring-context:5.3.9'
+    implementation 'org.springframework:spring-core:5.3.9'
+    implementation 'org.springframework:spring-webmvc:5.3.9'
+
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'
+
+}
+
+test {
+    useJUnitPlatform()
+}
