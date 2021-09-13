@@ -2,7 +2,9 @@ package com.epam.esm.service;
 
 import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
-import com.epam.esm.exception.CertificateNotFoundException;
+import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.exception.SaveException;
+import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +18,11 @@ import java.util.stream.Collectors;
 @Service
 public class CertificateService {
 
-    private final Repository<GiftCertificate> certificateRepository;
+    private final GiftCertificateRepository certificateRepository;
     private final DtoMapper dtoMapper;
 
     @Autowired
-    public CertificateService(Repository<GiftCertificate> certificateRepository, DtoMapper dtoMapper) {
+    public CertificateService(GiftCertificateRepository certificateRepository, DtoMapper dtoMapper) {
         this.certificateRepository = certificateRepository;
         this.dtoMapper = dtoMapper;
     }
@@ -35,7 +37,7 @@ public class CertificateService {
     public void updateCertificate(GiftCertificate newEntity, int id) {
         Optional<GiftCertificate> certificateOpt = certificateRepository.getById(id);
         if (!certificateOpt.isPresent()) {
-            throw new CertificateNotFoundException();
+            throw new ResourceNotFoundException(id);
         }
         GiftCertificate oldEntity = certificateOpt.get();
         Double duration = newEntity.getDuration();
@@ -63,7 +65,7 @@ public class CertificateService {
     public GiftCertificateDto getById(int id) {
         Optional<GiftCertificate> certificate = certificateRepository.getById(id);
         if (!certificate.isPresent()) {
-            throw new CertificateNotFoundException();
+            throw new ResourceNotFoundException(id);
         }
         return dtoMapper.mapCertificateToDto(certificate.get());
     }
@@ -73,6 +75,8 @@ public class CertificateService {
     }
 
     public void deleteCertificate(int id) {
-        certificateRepository.delete(id);
+        if (!certificateRepository.delete(id)) {
+            throw new ResourceNotFoundException(id);
+        }
     }
 }
