@@ -37,8 +37,7 @@ public class TagService {
     }
 
     public void save(String tagName) {
-        Tag tag = new Tag();
-        tag.setName(tagName);
+        Tag tag = new Tag(tagName);
         tagRepository.save(tag);
     }
 

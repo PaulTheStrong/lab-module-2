@@ -4,14 +4,9 @@ import com.epam.esm.entities.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,8 +15,12 @@ public class TagRepositoryImpl implements TagRepository {
 
     public static final String GET_BY_ID = "SELECT * FROM tag WHERE id=?";
     public static final String GET_ALL = "SELECT * FROM tag";
-    public static final String SAVE = "INSERT INTO tag (name) VALUE (LOWER(?)) ON DUPLICATE KEY UPDATE name = LOWER(?);";
+    public static final String SAVE = "INSERT INTO tag (name) VALUE (LOWER(?)) ON DUPLICATE KEY UPDATE id=id;";
     public static final String DELETE_BY_ID = "DELETE FROM tag WHERE id = ?";
+    private static final String SELECT_TAGS_BY_CERTIFICATE_ID = "SELECT t.name FROM tag t " +
+            "INNER JOIN tag_certificate tc on t.id = tc.tag_id " +
+            "INNER JOIN gift_certificate gc on tc.certificate_id = gc.id " +
+            "WHERE gc.id = ?";
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Tag> mapper;
@@ -40,7 +39,7 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public void save(Tag entity) {
         String name = entity.getName();
-        jdbcTemplate.update(SAVE, name, name);
+        jdbcTemplate.update(SAVE, name);
     }
 
     @Override
@@ -55,6 +54,11 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public boolean delete(int id) {
         return jdbcTemplate.update(DELETE_BY_ID, id) == 0;
+    }
+
+    @Override
+    public List<String> getTagsByCertificateId(int id) {
+        return jdbcTemplate.query(SELECT_TAGS_BY_CERTIFICATE_ID, (rs, rowNum) -> rs.getString(1), id);
     }
 }
 

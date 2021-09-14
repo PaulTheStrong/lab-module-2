@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/certificates")
@@ -29,19 +30,28 @@ public class GiftCertificateController {
     }
 
     @GetMapping
-    public List<GiftCertificateDto> getAll() {
-        return certificateService.getAll();
+    public List<GiftCertificateDto> getCertificates(@RequestParam Optional<String> search) {
+        if (search.isPresent()) {
+            return certificateService.getByNameOrDescription(search.get());
+        } else {
+            return certificateService.getAll();
+        }
+    }
+
+    @GetMapping("/tag/{name}")
+    public List<GiftCertificateDto> getByTagName(@PathVariable String name) {
+        return certificateService.getByTagName(name);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String addCertificate(@RequestBody GiftCertificate giftCertificate) {
-        certificateService.addCertificate(giftCertificate);
+    public String addCertificate(@RequestBody GiftCertificateDto giftCertificateDto) {
+        certificateService.addCertificate(giftCertificateDto);
         return CERTIFICATE_HAS_BEEN_ADDED;
     }
 
     @PatchMapping(value = "/{id}")
-    public String updateCertificate(@RequestBody GiftCertificate certificate, @PathVariable int id) {
+    public String updateCertificate(@RequestBody GiftCertificateDto certificate, @PathVariable int id) {
         certificateService.updateCertificate(certificate, id);
         return CERTIFICATE_HAS_BEEN_UPDATED;
     }

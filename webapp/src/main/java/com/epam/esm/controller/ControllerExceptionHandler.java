@@ -17,7 +17,7 @@ public class ControllerExceptionHandler {
     @ResponseBody
     public HttpErrorMessage resourceNotFound(ResourceNotFoundException e) {
         int id = e.getId();
-        return new HttpErrorMessage(40401, "Resource (id = " + id + " ) not found");
+        return new HttpErrorMessage(40401, "Resource (id = " + id + ") not found");
     }
 
 

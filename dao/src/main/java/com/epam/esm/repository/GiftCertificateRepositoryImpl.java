@@ -4,15 +4,9 @@ import com.epam.esm.entities.GiftCertificate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +29,9 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private static final String GET_CERTIFICATES_BY_TAG_NAME = "SELECT c.* FROM gift_certificate c " +
             "INNER JOIN tag_certificate tc on c.id = tc.certificate_id " +
             "INNER JOIN tag t on tc.tag_id = t.id WHERE t.name = ?";
+    private static final String SEARCH_BY_NAME_OR_DESCRIPTION = "CALL searchByNameOrDescription(?)";
+    private static final String ADD_TAG_TO_CERTIFICATE = "INSERT INTO tag_certificate VALUES (?, (SELECT id FROM tag WHERE name = LOWER(?)))";
+    private static final String REMOVE_TAG_FROM_CERTIFICATE = "DELETE FROM tag_certificate WHERE tag_id=(SELECT id FROM tag WHERE name = ?) AND certificate_id=?";
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<GiftCertificate> mapper;
@@ -61,6 +58,11 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
+    public void addTagToCertificate(int certificateId, String tag) {
+        jdbcTemplate.update(ADD_TAG_TO_CERTIFICATE, certificateId, tag);
+    }
+
+    @Override
     public void update(GiftCertificate entity) {
         jdbcTemplate.update(UPDATE,
                 entity.getName(), entity.getDescription(), entity.getPrice(),
@@ -76,7 +78,17 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public List<GiftCertificate> getAllByTagName(String tag) {
+    public List<GiftCertificate> getByTagName(String tag) {
         return jdbcTemplate.query(GET_CERTIFICATES_BY_TAG_NAME, mapper, tag);
+    }
+
+    @Override
+    public List<GiftCertificate> getByNameOrDescription(String searchString) {
+        return jdbcTemplate.query(SEARCH_BY_NAME_OR_DESCRIPTION, mapper, searchString);
+    }
+
+    @Override
+    public void removeTagFromCertificate(int certificateId, String tag) {
+        jdbcTemplate.update(REMOVE_TAG_FROM_CERTIFICATE, tag, certificateId);
     }
 }
