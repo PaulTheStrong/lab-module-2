@@ -1,10 +1,9 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entities.GiftCertificate;
-import com.epam.esm.entities.Tag;
+import com.epam.esm.repository.impl.GiftCertificateQueryBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface GiftCertificateRepository extends Repository<GiftCertificate> {
 
@@ -14,9 +13,6 @@ public interface GiftCertificateRepository extends Repository<GiftCertificate> {
 
     void update(GiftCertificate entity);
 
-    List<GiftCertificate> getByTagName(String tagName);
-
-    List<GiftCertificate> getByNameOrDescription(String search);
-    
+    List<GiftCertificate> customQuery(GiftCertificateQueryBuilder builder);
 
 }

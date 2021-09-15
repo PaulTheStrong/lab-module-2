@@ -16,6 +16,6 @@ public class RestBasicsWebAppInitializer
 
     @Override
     protected String[] getServletMappings() {
-        return new String[] {"/"};
+        return new String[] {"/v1.0.0/*"};
     }
 }

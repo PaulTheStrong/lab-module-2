@@ -1,6 +1,7 @@
-package com.epam.esm.repository;
+package com.epam.esm.repository.impl;
 
 import com.epam.esm.entities.Tag;
+import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,10 +45,11 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Optional<Tag> getById(int id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(GET_BY_ID, mapper, id));
-        } catch (EmptyResultDataAccessException e) {
+        List<Tag> tag = jdbcTemplate.query(GET_BY_ID, mapper, id);
+        if (tag.size() == 0) {
             return Optional.empty();
+        } else {
+            return Optional.of(tag.get(0));
         }
     }
 

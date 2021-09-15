@@ -19,8 +19,4 @@ public class ControllerExceptionHandler {
         int id = e.getId();
         return new HttpErrorMessage(40401, "Resource (id = " + id + ") not found");
     }
-
-
-
-
 }

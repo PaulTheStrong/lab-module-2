@@ -1,8 +1,8 @@
-package com.epam.esm.repository;
+package com.epam.esm.repository.impl;
 
 import com.epam.esm.entities.GiftCertificate;
+import com.epam.esm.repository.GiftCertificateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -44,10 +44,11 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Override
     public Optional<GiftCertificate> getById(int id) {
-        try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(GET_BY_ID, mapper, id));
-        } catch (EmptyResultDataAccessException e) {
+        List<GiftCertificate> certificate = jdbcTemplate.query(GET_BY_ID, mapper, id);
+        if (certificate.size() == 0) {
             return Optional.empty();
+        } else {
+            return Optional.of(certificate.get(0));
         }
     }
 
@@ -78,17 +79,14 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public List<GiftCertificate> getByTagName(String tag) {
-        return jdbcTemplate.query(GET_CERTIFICATES_BY_TAG_NAME, mapper, tag);
-    }
-
-    @Override
-    public List<GiftCertificate> getByNameOrDescription(String searchString) {
-        return jdbcTemplate.query(SEARCH_BY_NAME_OR_DESCRIPTION, mapper, searchString);
+    public List<GiftCertificate> customQuery(GiftCertificateQueryBuilder builder) {
+        return jdbcTemplate.query(builder.build(), mapper);
     }
 
     @Override
     public void removeTagFromCertificate(int certificateId, String tag) {
         jdbcTemplate.update(REMOVE_TAG_FROM_CERTIFICATE, tag, certificateId);
     }
+
+
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class DtoMapper {
 
-    public GiftCertificateDto mapCertificateToDto(GiftCertificate certificate, List<String> tags) {
+    public GiftCertificateDto giftCertificateToDto(GiftCertificate certificate, List<String> tags) {
 
         GiftCertificateDto result = new GiftCertificateDto();
         result.setId(certificate.getId());

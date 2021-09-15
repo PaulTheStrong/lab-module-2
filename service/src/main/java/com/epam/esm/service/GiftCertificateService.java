@@ -4,30 +4,27 @@ import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
-import com.epam.esm.exception.SaveException;
-import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.Repository;
-import com.epam.esm.repository.TagRepository;
+import com.epam.esm.repository.*;
+import com.epam.esm.repository.impl.GiftCertificateQueryBuilder;
+import com.epam.esm.repository.impl.SortColumn;
+import com.epam.esm.repository.impl.SortType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class CertificateService {
+public class GiftCertificateService {
 
     private final GiftCertificateRepository certificateRepository;
     private final TagRepository tagRepository;
     private final DtoMapper dtoMapper;
 
     @Autowired
-    public CertificateService(GiftCertificateRepository certificateRepository, TagRepository tagRepository, DtoMapper dtoMapper) {
+    public GiftCertificateService(GiftCertificateRepository certificateRepository, TagRepository tagRepository, DtoMapper dtoMapper) {
         this.certificateRepository = certificateRepository;
         this.tagRepository = tagRepository;
         this.dtoMapper = dtoMapper;
@@ -99,27 +96,30 @@ public class CertificateService {
             throw new ResourceNotFoundException(id);
         }
         List<String> tags = tagRepository.getTagsByCertificateId(id);
-        return dtoMapper.mapCertificateToDto(certificate.get(), tags);
+        return dtoMapper.giftCertificateToDto(certificate.get(), tags);
     }
 
     public List<GiftCertificateDto> getAll() {
         return certificateRepository.getAll()
                 .stream()
-                .map(cert -> dtoMapper.mapCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
+                .map(cert -> dtoMapper.giftCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
                 .collect(Collectors.toList());
     }
 
-    public List<GiftCertificateDto> getByNameOrDescription(String searchString) {
-        return certificateRepository.getByNameOrDescription(searchString)
-                .stream()
-                .map(cert -> dtoMapper.mapCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
-                .collect(Collectors.toList());
-    }
+    public List<GiftCertificateDto> getWithParameters(Optional<String> search, Optional<String> tag, List<String> sort) {
 
-    public List<GiftCertificateDto> getByTagName(String tagName) {
-        return certificateRepository.getByTagName(tagName)
-                .stream()
-                .map(cert -> dtoMapper.mapCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
+        GiftCertificateQueryBuilder queryBuilder = new GiftCertificateQueryBuilder();
+        search.ifPresent(queryBuilder::searchByNameOrDescription);
+        tag.ifPresent(queryBuilder::searchByTag);
+        sort.forEach(s -> {
+            String columnName = s.substring(1).toLowerCase(Locale.ROOT);
+            SortColumn column = SortColumn.createColumn(columnName);
+            SortType type = SortType.createType(s.substring(0, 1));
+            queryBuilder.sort(column, type);
+        });
+        List<GiftCertificate> foundCertificates = certificateRepository.customQuery(queryBuilder);
+        return foundCertificates.stream()
+                .map(cert -> dtoMapper.giftCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
                 .collect(Collectors.toList());
     }
 
