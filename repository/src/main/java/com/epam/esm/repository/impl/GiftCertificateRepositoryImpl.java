@@ -4,6 +4,7 @@ import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -13,8 +14,7 @@ import java.util.Optional;
 @Repository
 public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
 
-    private static final String GET_ALL =
-            "SELECT * FROM gift_certificate";
+    private static final String GET_ALL = "SELECT * FROM gift_certificate";
     private static final String UPDATE =
             "UPDATE gift_certificate SET " +
             "name=?, description=?, price=?, duration=?, last_update_date=? " +
@@ -79,8 +79,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public List<GiftCertificate> customQuery(GiftCertificateQueryBuilder builder) {
-        return jdbcTemplate.query(builder.build(), mapper);
+    public List<GiftCertificate> customQuery(PreparedStatementCreator preparedStatementCreator) {
+        return jdbcTemplate.query(preparedStatementCreator, mapper);
     }
 
     @Override

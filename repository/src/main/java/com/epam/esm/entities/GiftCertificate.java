@@ -1,6 +1,7 @@
 package com.epam.esm.entities;
 
 import lombok.Data;
+import lombok.NonNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

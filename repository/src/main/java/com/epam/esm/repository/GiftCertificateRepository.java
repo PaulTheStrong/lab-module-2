@@ -1,7 +1,8 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entities.GiftCertificate;
-import com.epam.esm.repository.impl.GiftCertificateQueryBuilder;
+import com.epam.esm.repository.impl.GiftCertificatePreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 
 import java.util.List;
 
@@ -13,6 +14,6 @@ public interface GiftCertificateRepository extends Repository<GiftCertificate> {
 
     void update(GiftCertificate entity);
 
-    List<GiftCertificate> customQuery(GiftCertificateQueryBuilder builder);
+    List<GiftCertificate> customQuery(PreparedStatementCreator preparedStatementCreator);
 
 }

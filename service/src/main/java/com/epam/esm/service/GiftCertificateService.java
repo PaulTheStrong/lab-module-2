@@ -3,9 +3,9 @@ package com.epam.esm.service;
 import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
-import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.exception.ServiceException;
 import com.epam.esm.repository.*;
-import com.epam.esm.repository.impl.GiftCertificateQueryBuilder;
+import com.epam.esm.repository.impl.GiftCertificatePreparedStatementCreator;
 import com.epam.esm.repository.impl.SortColumn;
 import com.epam.esm.repository.impl.SortType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.epam.esm.exception.ExceptionCodes.PROVIDE_CERTIFICATE_NAME;
+import static com.epam.esm.exception.ExceptionCodes.RESOURCE_NOT_FOUND;
 
 @Service
 public class GiftCertificateService {
@@ -31,6 +34,9 @@ public class GiftCertificateService {
     }
 
     public void addCertificate(GiftCertificateDto giftCertificateDto) {
+        if (giftCertificateDto == null || giftCertificateDto.getName() == null) {
+            throw new ServiceException(PROVIDE_CERTIFICATE_NAME);
+        }
         LocalDateTime now = LocalDateTime.now();
         GiftCertificate certificate = dtoMapper.dtoToGiftCertificate(giftCertificateDto);
         List<String> tags = giftCertificateDto.getTags();
@@ -45,7 +51,7 @@ public class GiftCertificateService {
     public void updateCertificate(GiftCertificateDto newEntity, int id) {
         Optional<GiftCertificate> certificateOpt = certificateRepository.getById(id);
         if (!certificateOpt.isPresent()) {
-            throw new ResourceNotFoundException(id);
+            throw new ServiceException(RESOURCE_NOT_FOUND, id);
         }
         GiftCertificate oldEntity = certificateOpt.get();
         Double duration = newEntity.getDuration();
@@ -93,7 +99,7 @@ public class GiftCertificateService {
     public GiftCertificateDto getById(int id) {
         Optional<GiftCertificate> certificate = certificateRepository.getById(id);
         if (!certificate.isPresent()) {
-            throw new ResourceNotFoundException(id);
+            throw new ServiceException(RESOURCE_NOT_FOUND, id);
         }
         List<String> tags = tagRepository.getTagsByCertificateId(id);
         return dtoMapper.giftCertificateToDto(certificate.get(), tags);
@@ -107,8 +113,7 @@ public class GiftCertificateService {
     }
 
     public List<GiftCertificateDto> getWithParameters(Optional<String> search, Optional<String> tag, List<String> sort) {
-
-        GiftCertificateQueryBuilder queryBuilder = new GiftCertificateQueryBuilder();
+        GiftCertificatePreparedStatementCreator.GiftCertificateQueryBuilder queryBuilder = GiftCertificatePreparedStatementCreator.createBuilder();
         search.ifPresent(queryBuilder::searchByNameOrDescription);
         tag.ifPresent(queryBuilder::searchByTag);
         sort.forEach(s -> {
@@ -117,7 +122,7 @@ public class GiftCertificateService {
             SortType type = SortType.createType(s.substring(0, 1));
             queryBuilder.sort(column, type);
         });
-        List<GiftCertificate> foundCertificates = certificateRepository.customQuery(queryBuilder);
+        List<GiftCertificate> foundCertificates = certificateRepository.customQuery(queryBuilder.build());
         return foundCertificates.stream()
                 .map(cert -> dtoMapper.giftCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
                 .collect(Collectors.toList());
@@ -125,8 +130,7 @@ public class GiftCertificateService {
 
     public void deleteCertificate(int id) {
         if (!certificateRepository.delete(id)) {
-            throw new ResourceNotFoundException(id);
+            throw new ServiceException(RESOURCE_NOT_FOUND, id);
         }
     }
-
 }

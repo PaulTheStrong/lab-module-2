@@ -1,6 +1,5 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'java'
+
 
 group 'com.epam.esm'
 version '1.0'
@@ -19,7 +18,7 @@ dependencies {
 
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
 
-    implementation project(':dao')
+    implementation project(':repository')
     implementation project(':service')
 
 }
