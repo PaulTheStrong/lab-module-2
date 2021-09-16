@@ -1,12 +1,13 @@
 package com.epam.esm.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Tag implements Identifiable {
+public class Tag extends Identifiable {
 
-    int id;
     @NonNull
     private String name;
 

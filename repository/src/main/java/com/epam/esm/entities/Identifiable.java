@@ -1,5 +1,8 @@
 package com.epam.esm.entities;
 
-public interface Identifiable {
-    int getId();
+import lombok.Data;
+
+@Data
+public abstract class Identifiable {
+    int id;
 }
