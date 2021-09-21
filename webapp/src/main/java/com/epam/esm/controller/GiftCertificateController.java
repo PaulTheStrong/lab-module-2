@@ -38,7 +38,7 @@ public class GiftCertificateController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public String addCertificate(@RequestBody GiftCertificateDto giftCertificateDto) {
         giftCertificateService.addCertificate(giftCertificateDto);
         return CERTIFICATE_HAS_BEEN_ADDED;
@@ -51,7 +51,7 @@ public class GiftCertificateController {
     }
 
     @DeleteMapping(value = "/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public String deleteCertificate(@PathVariable int id) {
         giftCertificateService.deleteCertificate(id);
         return CERTIFICATE_HAS_BEEN_DELETED;

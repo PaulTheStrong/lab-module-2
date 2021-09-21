@@ -61,10 +61,10 @@ public class GiftCertificateServiceTest {
 
     @Test
     public void testGetAllCertificatesWhenRepositoryNotEmptyShouldReturnAllDtosWithTags() {
-        Mockito.when(mockTagRepository.getTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
-        Mockito.when(mockTagRepository.getTagsByCertificateId(1)).thenReturn(TAGS_FOR_CERTIFICATE_2);
+        Mockito.when(mockTagRepository.findTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
+        Mockito.when(mockTagRepository.findTagsByCertificateId(1)).thenReturn(TAGS_FOR_CERTIFICATE_2);
 
-        Mockito.when(mockCertificateRepository.getAll()).thenReturn(Arrays.asList(TEST_GIFT_CERTIFICATES));
+        Mockito.when(mockCertificateRepository.findAll()).thenReturn(Arrays.asList(TEST_GIFT_CERTIFICATES));
 
         Mockito.when(mockDtoMapper.giftCertificateToDto(TEST_GIFT_CERTIFICATES[0], TAGS_FOR_CERTIFICATE_1)).thenReturn(TEST_DTOS[0]);
         Mockito.when(mockDtoMapper.giftCertificateToDto(TEST_GIFT_CERTIFICATES[1], TAGS_FOR_CERTIFICATE_2)).thenReturn(TEST_DTOS[1]);
@@ -80,7 +80,7 @@ public class GiftCertificateServiceTest {
 
     @Test
     public void testGetAllCertificatesWhenRepositoryEmptyShouldReturnEmptyList() {
-        Mockito.when(mockCertificateRepository.getAll()).thenReturn(Collections.EMPTY_LIST);
+        Mockito.when(mockCertificateRepository.findAll()).thenReturn(Collections.EMPTY_LIST);
 
         List<GiftCertificateDto> result = service.getAll();
 
@@ -89,8 +89,8 @@ public class GiftCertificateServiceTest {
 
     @Test
     public void testGetCertificateByIdWhenCertificateInDatabaseShouldReturnNonEmptyResult() {
-        Mockito.when(mockTagRepository.getTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
-        Mockito.when(mockCertificateRepository.getById(TEST_GIFT_CERTIFICATES[0].getId())).thenReturn(Optional.of(TEST_GIFT_CERTIFICATES[0]));
+        Mockito.when(mockTagRepository.findTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
+        Mockito.when(mockCertificateRepository.findById(TEST_GIFT_CERTIFICATES[0].getId())).thenReturn(Optional.of(TEST_GIFT_CERTIFICATES[0]));
         Mockito.when(mockDtoMapper.giftCertificateToDto(TEST_GIFT_CERTIFICATES[0], TAGS_FOR_CERTIFICATE_1)).thenReturn(TEST_DTOS[0]);
 
         GiftCertificateDto result = service.getById(TEST_GIFT_CERTIFICATES[0].getId());
@@ -100,13 +100,13 @@ public class GiftCertificateServiceTest {
 
     @Test
     public void testGetGiftCertificatesByIdWhenCertificateNotFoundShouldThrowServiceException() {
-        Mockito.when(mockCertificateRepository.getById(0)).thenReturn(Optional.empty());
+        Mockito.when(mockCertificateRepository.findById(0)).thenReturn(Optional.empty());
         Assertions.assertThrows(ServiceException.class, () -> service.getById(0));
     }
 
     @Test
     public void testDeleteShouldThrowServiceExceptionWhenRequestedRecordNotFound() {
-        Mockito.when(mockCertificateRepository.getById(1)).thenReturn(Optional.empty());
+        Mockito.when(mockCertificateRepository.findById(1)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ServiceException.class, () -> service.deleteCertificate(1));
     }

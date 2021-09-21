@@ -1,6 +1,5 @@
 package com.epam.esm.data;
 
-import com.epam.esm.entities.Tag;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;

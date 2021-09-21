@@ -1,7 +1,5 @@
 package com.epam.esm.exception;
 
-import org.springframework.http.HttpStatus;
-
 public class HttpErrorMessage {
 
     private final int code;

@@ -6,6 +6,10 @@ import java.util.List;
 
 public interface TagRepository extends Repository<Tag> {
 
-    List<String> getTagsByCertificateId(int id);
+    List<String> findTagsByCertificateId(int id);
+
+    void addCertificateTagAssociation(int certificateId, String tag);
+
+    void removeCertificateTagAssociation(int certificateId, String tag);
 
 }

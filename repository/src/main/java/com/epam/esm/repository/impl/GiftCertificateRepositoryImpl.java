@@ -29,10 +29,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private static final String GET_CERTIFICATES_BY_TAG_NAME = "SELECT c.* FROM gift_certificate c " +
             "INNER JOIN tag_certificate tc on c.id = tc.certificate_id " +
             "INNER JOIN tag t on tc.tag_id = t.id WHERE t.name = ?";
-    private static final String SEARCH_BY_NAME_OR_DESCRIPTION = "CALL searchByNameOrDescription(?)";
-    private static final String ADD_TAG_TO_CERTIFICATE = "INSERT INTO tag_certificate VALUES (?, (SELECT id FROM tag WHERE name = LOWER(?)))";
-    private static final String REMOVE_TAG_FROM_CERTIFICATE = "DELETE FROM tag_certificate WHERE tag_id=(SELECT id FROM tag WHERE name = ?) AND certificate_id=?";
-
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<GiftCertificate> mapper;
 
@@ -43,7 +39,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public Optional<GiftCertificate> getById(int id) {
+    public Optional<GiftCertificate> findById(int id) {
         List<GiftCertificate> certificate = jdbcTemplate.query(GET_BY_ID, mapper, id);
         if (certificate.size() == 0) {
             return Optional.empty();
@@ -59,11 +55,6 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public void addTagToCertificate(int certificateId, String tag) {
-        jdbcTemplate.update(ADD_TAG_TO_CERTIFICATE, certificateId, tag);
-    }
-
-    @Override
     public void update(GiftCertificate entity) {
         jdbcTemplate.update(UPDATE,
                 entity.getName(), entity.getDescription(), entity.getPrice(),
@@ -74,19 +65,13 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
         return jdbcTemplate.update(DELETE_BY_ID, id) == 1;
     }
 
-    public List<GiftCertificate> getAll() {
+    public List<GiftCertificate> findAll() {
         return jdbcTemplate.query(GET_ALL, mapper);
     }
 
     @Override
-    public List<GiftCertificate> customQuery(PreparedStatementCreator preparedStatementCreator) {
+    public List<GiftCertificate> findBySpecification(PreparedStatementCreator preparedStatementCreator) {
         return jdbcTemplate.query(preparedStatementCreator, mapper);
     }
-
-    @Override
-    public void removeTagFromCertificate(int certificateId, String tag) {
-        jdbcTemplate.update(REMOVE_TAG_FROM_CERTIFICATE, tag, certificateId);
-    }
-
 
 }

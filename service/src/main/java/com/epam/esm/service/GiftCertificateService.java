@@ -13,7 +13,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.exception.ExceptionCodes.PROVIDE_CERTIFICATE_NAME;
@@ -49,7 +53,7 @@ public class GiftCertificateService {
     }
 
     public void updateCertificate(GiftCertificateDto newEntity, int id) {
-        Optional<GiftCertificate> certificateOpt = certificateRepository.getById(id);
+        Optional<GiftCertificate> certificateOpt = certificateRepository.findById(id);
         if (!certificateOpt.isPresent()) {
             throw new ServiceException(RESOURCE_NOT_FOUND, id);
         }
@@ -82,33 +86,33 @@ public class GiftCertificateService {
     }
 
     private void updateTags(GiftCertificateDto newEntity, int id) {
-        List<String> oldTags = tagRepository.getTagsByCertificateId(id);
+        List<String> oldTags = tagRepository.findTagsByCertificateId(id);
         List<String> newTags = newEntity.getTags();
 
-        Set<String> tagsForRemove = new HashSet<>(oldTags);
-        tagsForRemove.removeAll(newTags);
+        Set<String> tagsToRemove = new HashSet<>(oldTags);
+        tagsToRemove.removeAll(newTags);
 
         Set<String> tagsToAdd = new HashSet<>(newTags);
         tagsToAdd.removeAll(oldTags);
 
         tagsToAdd.stream().map(Tag::new).forEach(tagRepository::save);
-        tagsToAdd.forEach(tag -> certificateRepository.addTagToCertificate(id, tag));
-        tagsForRemove.forEach(tag -> certificateRepository.removeTagFromCertificate(id, tag));
+        tagsToAdd.forEach(tag -> tagRepository.addCertificateTagAssociation(id, tag));
+        tagsToRemove.forEach(tag -> tagRepository.removeCertificateTagAssociation(id, tag));
     }
 
     public GiftCertificateDto getById(int id) {
-        Optional<GiftCertificate> certificate = certificateRepository.getById(id);
+        Optional<GiftCertificate> certificate = certificateRepository.findById(id);
         if (!certificate.isPresent()) {
             throw new ServiceException(RESOURCE_NOT_FOUND, id);
         }
-        List<String> tags = tagRepository.getTagsByCertificateId(id);
+        List<String> tags = tagRepository.findTagsByCertificateId(id);
         return dtoMapper.giftCertificateToDto(certificate.get(), tags);
     }
 
     public List<GiftCertificateDto> getAll() {
-        return certificateRepository.getAll()
+        return certificateRepository.findAll()
                 .stream()
-                .map(cert -> dtoMapper.giftCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
+                .map(cert -> dtoMapper.giftCertificateToDto(cert, tagRepository.findTagsByCertificateId(cert.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -122,9 +126,9 @@ public class GiftCertificateService {
             SortType type = SortType.createType(s.substring(0, 1));
             queryBuilder.sort(column, type);
         });
-        List<GiftCertificate> foundCertificates = certificateRepository.customQuery(queryBuilder.build());
+        List<GiftCertificate> foundCertificates = certificateRepository.findBySpecification(queryBuilder.build());
         return foundCertificates.stream()
-                .map(cert -> dtoMapper.giftCertificateToDto(cert, tagRepository.getTagsByCertificateId(cert.getId())))
+                .map(cert -> dtoMapper.giftCertificateToDto(cert, tagRepository.findTagsByCertificateId(cert.getId())))
                 .collect(Collectors.toList());
     }
 

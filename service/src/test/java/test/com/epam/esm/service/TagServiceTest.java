@@ -39,7 +39,7 @@ public class TagServiceTest {
 
     @Test
     public void testGetByIdShouldReturnTagWhenTagInDb() {
-        Mockito.when(tagRepository.getById(1)).thenReturn(Optional.of(TEST_TAGS[0]));
+        Mockito.when(tagRepository.findById(1)).thenReturn(Optional.of(TEST_TAGS[0]));
 
         Tag result = tagService.getById(1);
 
@@ -48,14 +48,14 @@ public class TagServiceTest {
 
     @Test
     public void testGetByIdShouldThrowServiceExceptionWhenNoResultFound() {
-        Mockito.when(tagRepository.getById(0)).thenReturn(Optional.empty());
+        Mockito.when(tagRepository.findById(0)).thenReturn(Optional.empty());
         Assertions.assertThrows(ServiceException.class, () -> tagService.getById(0));
     }
 
     @Test
     public void testGetAllShouldReturnAllWhenDbContainsTags() {
         List<Tag> tagList = Arrays.asList(TEST_TAGS);
-        Mockito.when(tagRepository.getAll()).thenReturn(tagList);
+        Mockito.when(tagRepository.findAll()).thenReturn(tagList);
 
         List<Tag> result = tagService.getAll();
 
@@ -64,7 +64,7 @@ public class TagServiceTest {
 
     @Test
     public void testGetAllShouldReturnEmptyListWhenNothingFound() {
-        Mockito.when(tagRepository.getAll()).thenReturn(Collections.emptyList());
+        Mockito.when(tagRepository.findAll()).thenReturn(Collections.emptyList());
 
         List<Tag> result = tagService.getAll();
 
@@ -73,7 +73,7 @@ public class TagServiceTest {
 
     @Test
     public void testDeleteShouldThrowServiceExceptionWhenRequestedRecordNotFound() {
-        Mockito.when(tagRepository.getById(1)).thenReturn(Optional.empty());
+        Mockito.when(tagRepository.findById(1)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ServiceException.class, () -> tagService.delete(1));
     }

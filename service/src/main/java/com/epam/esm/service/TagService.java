@@ -24,7 +24,7 @@ public class TagService {
     }
 
     public Tag getById(int id) {
-        Optional<Tag> tagOptional = tagRepository.getById(id);
+        Optional<Tag> tagOptional = tagRepository.findById(id);
         if (!tagOptional.isPresent()) {
             throw new ServiceException(RESOURCE_NOT_FOUND, id);
         }
@@ -43,6 +43,6 @@ public class TagService {
     }
 
     public List<Tag> getAll() {
-        return tagRepository.getAll();
+        return tagRepository.findAll();
     }
 }
