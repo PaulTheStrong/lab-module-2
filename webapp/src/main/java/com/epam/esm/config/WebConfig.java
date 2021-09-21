@@ -1,6 +1,5 @@
 package com.epam.esm.config;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.ResourceBundleMessageSource;

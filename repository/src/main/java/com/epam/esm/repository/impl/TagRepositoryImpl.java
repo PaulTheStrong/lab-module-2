@@ -20,9 +20,8 @@ public class TagRepositoryImpl implements TagRepository {
             "INNER JOIN tag_certificate tc on t.id = tc.tag_id " +
             "INNER JOIN gift_certificate gc on tc.certificate_id = gc.id " +
             "WHERE gc.id = ?";
-    private static final String ADD_TAG_TO_CERTIFICATE = "INSERT INTO tag_certificate VALUES (?, (SELECT id FROM tag WHERE name = LOWER(?)))";
-    private static final String REMOVE_TAG_FROM_CERTIFICATE = "DELETE FROM tag_certificate WHERE tag_id=(SELECT id FROM tag WHERE name = ?) AND certificate_id=?";
-
+    private static final String ADD_CERTIFICATE_TAG_ASSOCIATION = "INSERT INTO tag_certificate VALUES (?, (SELECT id FROM tag WHERE name = LOWER(?)))";
+    private static final String REMOVE_CERTIFICATE_TAG_ASSOCIATION = "DELETE FROM tag_certificate WHERE tag_id=(SELECT id FROM tag WHERE name = ?) AND certificate_id=?";
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Tag> mapper;
@@ -66,12 +65,12 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public void removeCertificateTagAssociation(int certificateId, String tag) {
-        jdbcTemplate.update(REMOVE_TAG_FROM_CERTIFICATE, tag, certificateId);
+        jdbcTemplate.update(REMOVE_CERTIFICATE_TAG_ASSOCIATION, tag, certificateId);
     }
 
     @Override
     public void addCertificateTagAssociation(int certificateId, String tag) {
-        jdbcTemplate.update(ADD_TAG_TO_CERTIFICATE, certificateId, tag);
+        jdbcTemplate.update(ADD_CERTIFICATE_TAG_ASSOCIATION, certificateId, tag);
     }
 }
 
