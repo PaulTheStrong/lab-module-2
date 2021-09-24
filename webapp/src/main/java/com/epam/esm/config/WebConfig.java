@@ -1,8 +1,13 @@
 package com.epam.esm.config;
 
+import com.epam.esm.exception.ErrorCodeToHttpStatusMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.*;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
@@ -30,7 +35,13 @@ public class WebConfig implements WebMvcConfigurer {
         return acceptHeaderLocaleResolver;
     }
 
-    @Bean("exceptionMessages")
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @Bean
+    @Qualifier("errorMessages")
     public ResourceBundleMessageSource messageSource(
             @Value("${exceptionMessagesFilename}") String resourceBundleBaseName,
             @Value("${defaultEncoding}") String defaultEncoding) {
@@ -41,4 +52,15 @@ public class WebConfig implements WebMvcConfigurer {
         return rs;
     }
 
+    @Bean
+    public ErrorCodeToHttpStatusMapper errorCodeToHttpStatusMapper() {
+        return new ErrorCodeToHttpStatusMapper();
+    }
+
+    @Bean
+    public LocalValidatorFactoryBean getValidatorFactory() {
+        LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean();
+        localValidatorFactoryBean.getValidationPropertyMap().put("hibernate.validator.fail_fast", "true");
+        return localValidatorFactoryBean;
+    }
 }

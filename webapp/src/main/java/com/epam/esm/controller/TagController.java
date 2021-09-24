@@ -4,22 +4,19 @@ import com.epam.esm.entities.Tag;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.Validation;
+import javax.validation.ValidationException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/tags")
+@Validated
 public class TagController {
-
-    private static final String TAG_HAS_BEEN_DELETED = "Tag has been deleted";
-    private static final String TAG_HAS_BEEN_ADDED = "Tag has been added";
 
     private final TagService tagService;
 
@@ -38,17 +35,16 @@ public class TagController {
         return tagService.getAll();
     }
 
-    @PostMapping("/{name}")
+    @PostMapping()
     @ResponseStatus(HttpStatus.OK)
-    public String addTag(@PathVariable String name) {
-        tagService.save(name);
-        return TAG_HAS_BEEN_ADDED;
+    public Tag addTag(@Valid @RequestBody Tag tag) {
+        return tagService.save(tag);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String deleteTag(@PathVariable int id) {
+    public void deleteTag(@PathVariable int id) {
         tagService.delete(id);
-        return TAG_HAS_BEEN_DELETED;
     }
 }
+

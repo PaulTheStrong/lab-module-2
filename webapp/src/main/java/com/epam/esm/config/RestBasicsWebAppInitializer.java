@@ -4,6 +4,8 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 
 public class RestBasicsWebAppInitializer
         extends AbstractAnnotationConfigDispatcherServletInitializer {
+
+
     @Override
     protected Class<?>[] getRootConfigClasses() {
         return new Class[] {RootConfig.class, RepositoryConfig.class};
@@ -16,6 +18,6 @@ public class RestBasicsWebAppInitializer
 
     @Override
     protected String[] getServletMappings() {
-        return new String[] {"/v1.0.0/*"};
+        return new String[] {"/v2/*"};
     }
 }

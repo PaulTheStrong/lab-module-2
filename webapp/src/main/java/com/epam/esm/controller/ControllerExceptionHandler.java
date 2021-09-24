@@ -1,28 +1,82 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.exception.ErrorCodeToHttpStatusMapper;
 import com.epam.esm.i18n.Translator;
-import com.epam.esm.exception.HttpErrorMessage;
+import com.epam.esm.exception.HttpErrorResponse;
 import com.epam.esm.exception.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
+import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
     private final Translator messageTranslator;
+    private final ErrorCodeToHttpStatusMapper mapper;
 
     @Autowired
-    public ControllerExceptionHandler(Translator messageTranslator) {
+    public ControllerExceptionHandler(Translator messageTranslator, ErrorCodeToHttpStatusMapper mapper) {
         this.messageTranslator = messageTranslator;
+        this.mapper = mapper;
     }
 
     @ExceptionHandler(ServiceException.class)
-    @ResponseBody
-    public HttpErrorMessage resourceNotFound(ServiceException e) {
-        String errorMessageIdentifier = e.getErrorMessageIdentifier();
+    public ResponseEntity<HttpErrorResponse> handleServiceException(ServiceException e) {
+        String errorCode = e.getErrorCode();
         Object[] arguments = e.getArguments();
-        return new HttpErrorMessage(40401, messageTranslator.toLocale(errorMessageIdentifier, arguments));
+        String localizedMessage = messageTranslator.toLocale(errorCode, arguments);
+        HttpErrorResponse httpErrorResponse = new HttpErrorResponse(errorCode, localizedMessage);
+        HttpStatus status = mapper.errorCodeToStatus(errorCode);
+        return new ResponseEntity<>(httpErrorResponse, status);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    public HttpErrorResponse handleValidationExceptions(
+            MethodArgumentNotValidException exception) {
+        BindingResult bindingResult = exception.getBindingResult();
+        ObjectError error = bindingResult.getAllErrors().get(0);
+        String errorCode = error.getDefaultMessage();
+        String localizedMessage = messageTranslator.toLocale(errorCode);
+        return new HttpErrorResponse(errorCode, localizedMessage);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ResponseBody
+    public HttpErrorResponse handleUnsupportedMediaTypeException(HttpMediaTypeNotSupportedException e) {
+        String errorCode = CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
+        MediaType contentType = e.getContentType();
+        String localizedMessage = messageTranslator.toLocale(errorCode, contentType);
+        return new HttpErrorResponse(errorCode, localizedMessage);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public HttpErrorResponse handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException e
+    ) {
+        String requiredType = e.getRequiredType().getName();
+        Object value = e.getValue();
+        String resultType = value.getClass().getName();
+        String errorCode = TYPE_MISMATCH;
+        String localizedMessage = messageTranslator.toLocale(errorCode, requiredType, resultType, value.toString());
+        return new HttpErrorResponse(errorCode, localizedMessage);
     }
 }

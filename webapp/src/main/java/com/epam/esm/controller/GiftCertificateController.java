@@ -2,8 +2,11 @@ package com.epam.esm.controller;
 
 import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.validator.PatchDto;
+import com.epam.esm.validator.SaveDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -12,9 +15,6 @@ import java.util.*;
 @RequestMapping("/certificates")
 public class GiftCertificateController {
 
-    private static final String CERTIFICATE_HAS_BEEN_ADDED = "Certificate has been added";
-    private static final String CERTIFICATE_HAS_BEEN_UPDATED = "Certificate has been updated";
-    private static final String CERTIFICATE_HAS_BEEN_DELETED = "Certificate has been deleted";
     private final GiftCertificateService giftCertificateService;
 
     @Autowired
@@ -30,30 +30,28 @@ public class GiftCertificateController {
     @GetMapping
     public List<GiftCertificateDto> getCertificates(@RequestParam Optional<String> search,
                                                     @RequestParam Optional<String> tag,
-                                                    @RequestParam Optional<List<String>> sort) {
-        if (!search.isPresent() && !tag.isPresent() && !sort.isPresent()) {
+                                                    @RequestParam Optional<List<String>> sortColumns,
+                                                    @RequestParam Optional<List<String>> sortTypes) {
+        if (!search.isPresent() && !tag.isPresent() && !sortColumns.isPresent() && !sortTypes.isPresent()) {
             return giftCertificateService.getAll();
         }
-        return giftCertificateService.getWithParameters(search, tag, sort.orElse(Collections.emptyList()));
+        return giftCertificateService.getWithParameters(search, tag, sortColumns.orElse(Collections.emptyList()), sortTypes.orElse(Collections.emptyList()));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public String addCertificate(@RequestBody GiftCertificateDto giftCertificateDto) {
-        giftCertificateService.addCertificate(giftCertificateDto);
-        return CERTIFICATE_HAS_BEEN_ADDED;
+    public GiftCertificateDto addCertificate(@Validated(SaveDto.class) @RequestBody GiftCertificateDto giftCertificateDto) {
+        return giftCertificateService.addCertificate(giftCertificateDto);
     }
 
     @PatchMapping(value = "/{id}")
-    public String updateCertificate(@RequestBody GiftCertificateDto certificate, @PathVariable int id) {
-        giftCertificateService.updateCertificate(certificate, id);
-        return CERTIFICATE_HAS_BEEN_UPDATED;
+    public GiftCertificateDto updateCertificate(@Validated(PatchDto.class) @RequestBody GiftCertificateDto certificate, @PathVariable int id) {
+        return giftCertificateService.updateCertificate(certificate, id);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String deleteCertificate(@PathVariable int id) {
+    public void deleteCertificate(@PathVariable int id) {
         giftCertificateService.deleteCertificate(id);
-        return CERTIFICATE_HAS_BEEN_DELETED;
     }
 }

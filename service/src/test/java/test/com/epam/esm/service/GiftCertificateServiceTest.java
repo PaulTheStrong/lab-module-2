@@ -46,8 +46,8 @@ public class GiftCertificateServiceTest {
         new Tag(2, "food"),
         new Tag(3, "beauty")
     };
-    private static final List<String> TAGS_FOR_CERTIFICATE_2 = Arrays.asList(TEST_TAGS[2].getName());
-    private static final List<String> TAGS_FOR_CERTIFICATE_1 = Arrays.asList(TEST_TAGS[0].getName(), TEST_TAGS[2].getName());
+    private static final List<Tag> TAGS_FOR_CERTIFICATE_2 = Arrays.asList(TEST_TAGS[2]);
+    private static final List<Tag> TAGS_FOR_CERTIFICATE_1 = Arrays.asList(TEST_TAGS[0], TEST_TAGS[2]);
 
     private static final GiftCertificate[] TEST_GIFT_CERTIFICATES = {
         new GiftCertificate(0, "Name1", "Descr1", new BigDecimal("10"), 10.0, LocalDateTime.now(), LocalDateTime.now()),

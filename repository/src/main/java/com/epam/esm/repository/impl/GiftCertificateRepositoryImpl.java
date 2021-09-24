@@ -3,12 +3,16 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -31,11 +35,13 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             "INNER JOIN tag t on tc.tag_id = t.id WHERE t.name = ?";
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<GiftCertificate> mapper;
+    private final SimpleJdbcInsert jdbcInsert;
 
     @Autowired
-    public GiftCertificateRepositoryImpl(JdbcTemplate jdbcTemplate, RowMapper<GiftCertificate> mapper) {
+    public GiftCertificateRepositoryImpl(JdbcTemplate jdbcTemplate, RowMapper<GiftCertificate> mapper, @Qualifier("GiftCertificate") SimpleJdbcInsert jdbcInsert) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
+        this.jdbcInsert = jdbcInsert;
     }
 
     @Override
@@ -48,17 +54,25 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
         }
     }
 
-    public void save(GiftCertificate entity) {
-        jdbcTemplate.update(SAVE,
-                entity.getName(), entity.getDescription(), entity.getPrice(),
-                entity.getDuration(), entity.getCreateDate(), entity.getLastUpdateDate());
+    public Optional<GiftCertificate> save(GiftCertificate entity) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("name", entity.getName());
+        parameters.put("description", entity.getDescription());
+        parameters.put("price", entity.getPrice());
+        parameters.put("duration", entity.getDuration());
+        parameters.put("create_date", entity.getCreateDate());
+        parameters.put("last_update_date", entity.getLastUpdateDate());
+        Number id = jdbcInsert.executeAndReturnKey(parameters);
+        entity.setId(id.intValue());
+        return Optional.of(entity);
     }
 
     @Override
-    public void update(GiftCertificate entity) {
+    public Optional<GiftCertificate> update(GiftCertificate entity) {
         jdbcTemplate.update(UPDATE,
                 entity.getName(), entity.getDescription(), entity.getPrice(),
                 entity.getDuration(), entity.getLastUpdateDate(), entity.getId());
+        return Optional.of(entity);
     }
 
     public boolean delete(int id) {

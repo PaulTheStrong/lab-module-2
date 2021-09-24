@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
+import com.epam.esm.entities.Tag;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 @Service
 public class DtoMapper {
 
-    public GiftCertificateDto giftCertificateToDto(GiftCertificate certificate, List<String> tags) {
+    public GiftCertificateDto giftCertificateToDto(GiftCertificate certificate, List<Tag> tags) {
 
         GiftCertificateDto result = new GiftCertificateDto();
         result.setId(certificate.getId());
