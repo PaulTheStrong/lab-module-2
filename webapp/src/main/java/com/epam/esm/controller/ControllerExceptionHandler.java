@@ -1,23 +1,22 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.exception.ErrorCodeToHttpStatusMapper;
-import com.epam.esm.i18n.Translator;
 import com.epam.esm.exception.HttpErrorResponse;
 import com.epam.esm.exception.ServiceException;
+import com.epam.esm.i18n.Translator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
 import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;

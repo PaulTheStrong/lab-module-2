@@ -1,9 +1,6 @@
 package com.epam.esm.validator;
 
 import com.epam.esm.entities.Tag;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

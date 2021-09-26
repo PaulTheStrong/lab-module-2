@@ -77,4 +77,11 @@ public class TagServiceTest {
 
         Assertions.assertThrows(ServiceException.class, () -> tagService.delete(1));
     }
+
+    @Test
+    public void testSaveShouldReturnTag() {
+        Tag testTag = TEST_TAGS[0];
+        Mockito.when(tagRepository.save(testTag)).thenReturn(Optional.of(testTag));
+        Mockito.when(tagService.save(testTag)).thenReturn(testTag);
+    }
 }

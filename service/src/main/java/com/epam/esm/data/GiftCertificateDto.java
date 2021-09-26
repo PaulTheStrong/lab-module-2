@@ -2,19 +2,15 @@ package com.epam.esm.data;
 
 import com.epam.esm.entities.Tag;
 import com.epam.esm.validator.DtoTag;
-import com.epam.esm.validator.DtoTagValidator;
 import com.epam.esm.validator.PatchDto;
 import com.epam.esm.validator.SaveDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

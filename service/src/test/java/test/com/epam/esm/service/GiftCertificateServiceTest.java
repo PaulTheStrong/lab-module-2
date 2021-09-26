@@ -111,4 +111,21 @@ public class GiftCertificateServiceTest {
         Assertions.assertThrows(ServiceException.class, () -> service.deleteCertificate(1));
     }
 
+    @Test
+    public void testGiftCertificateShouldReturnCertificateWhenSave() {
+        GiftCertificate testGiftCertificate = TEST_GIFT_CERTIFICATES[1];
+        GiftCertificateDto testDto = TEST_DTOS[1];
+
+        Mockito.when(mockCertificateRepository.save(testGiftCertificate))
+                .thenReturn(Optional.of(testGiftCertificate));
+        Integer tagId1 = TAGS_FOR_CERTIFICATE_2.get(0).getId();
+        Mockito.when(mockTagRepository.findById(tagId1)).thenReturn(Optional.of(TAGS_FOR_CERTIFICATE_2.get(0)));
+        Mockito.when(mockDtoMapper.dtoToGiftCertificate(testDto)).thenReturn(testGiftCertificate);
+        GiftCertificateDto giftCertificateDto = service.addCertificate(testDto);
+
+        Assertions.assertEquals(testGiftCertificate.getName(), giftCertificateDto.getName());
+        Assertions.assertEquals(TAGS_FOR_CERTIFICATE_2.get(0), giftCertificateDto.getTags().get(0));
+        Assertions.assertEquals(testGiftCertificate.getId(), giftCertificateDto.getId());
+    }
+
 }

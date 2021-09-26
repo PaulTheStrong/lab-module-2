@@ -1,7 +1,6 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entities.Tag;
-import lombok.NonNull;
 
 import java.util.List;
 import java.util.Optional;

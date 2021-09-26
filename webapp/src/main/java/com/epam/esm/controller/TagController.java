@@ -4,13 +4,10 @@ import com.epam.esm.entities.Tag;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.Validation;
-import javax.validation.ValidationException;
 import java.util.List;
 
 @RestController
@@ -47,4 +44,3 @@ public class TagController {
         tagService.delete(id);
     }
 }
-
