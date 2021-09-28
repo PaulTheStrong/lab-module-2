@@ -17,7 +17,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import javax.validation.ValidationProviderResolver;
 import java.util.Locale;
 
 @Configuration
