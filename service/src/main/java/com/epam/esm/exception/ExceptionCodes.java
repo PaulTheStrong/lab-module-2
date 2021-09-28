@@ -18,5 +18,6 @@ public class ExceptionCodes {
     public static final String TAG_NOT_FOUND = "40402";
     public static final String UNABLE_TO_SAVE_CERTIFICATE = "40403";
     public static final String UNABLE_TO_SAVE_TAG = "40404";
+    public static final String METHOD_NOT_SUPPORTED = "40501";
     public static final String CONTENT_MEDIA_TYPE_NOT_SUPPORTED = "41501";
 }

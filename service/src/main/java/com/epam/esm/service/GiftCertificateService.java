@@ -14,11 +14,18 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_CERTIFICATE;
 
 @Service
 public class GiftCertificateService {
@@ -34,6 +41,13 @@ public class GiftCertificateService {
         this.dtoMapper = dtoMapper;
     }
 
+    /**
+     * Sets createDate and lastUpdateDate for gift certificate, saves it in repository,
+     * assigns new id. Then updates tags - creates new if needed or find old.
+     *
+     * @param giftCertificateDto - data to be saved
+     * @return updated gift certificate dto with id, tags
+     */
     public GiftCertificateDto addCertificate(GiftCertificateDto giftCertificateDto) {
         GiftCertificate certificate = dtoMapper.dtoToGiftCertificate(giftCertificateDto);
 
@@ -55,6 +69,13 @@ public class GiftCertificateService {
         return giftCertificateDto;
     }
 
+    /**
+     * Updates GiftCertificate in database and tags, passed in dto
+     * @param certificateDto - Dto contains data to be updated
+     * @param id identifies gift certificate record in database
+     * @return updated dto if certificate with given dto exists. Otherwise, throws
+     * service exception.
+     */
     public GiftCertificateDto updateCertificate(GiftCertificateDto certificateDto, int id) {
         Optional<GiftCertificate> certificateOpt = certificateRepository.findById(id);
         if (!certificateOpt.isPresent()) {
@@ -140,6 +161,11 @@ public class GiftCertificateService {
         tag.setName(tagByIdInRepository.get().getName());
     }
 
+    /**
+     * @param id - gift certificate id in repository
+     * @return gift certificate dto with tags, associated with it.
+     * If not found throws Service Exception
+     */
     public GiftCertificateDto getById(int id) {
         Optional<GiftCertificate> certificate = certificateRepository.findById(id);
         if (!certificate.isPresent()) {
@@ -149,6 +175,9 @@ public class GiftCertificateService {
         return dtoMapper.giftCertificateToDto(certificate.get(), tags);
     }
 
+    /**
+     * @return all GiftCertificateDto found in database with associated tags.
+     */
     public List<GiftCertificateDto> getAll() {
         return certificateRepository.findAll()
                 .stream()
@@ -159,9 +188,17 @@ public class GiftCertificateService {
                 .collect(Collectors.toList());
     }
 
-    public List<GiftCertificateDto> getWithParameters(Optional<String> search, Optional<String> tag, List<String> sortColumns, List<String> sortTypes) {
+    /**
+     * Builds a query with given parameters and gets List of GiftCertificateDto
+     * that satisfies these parameters.
+     * @param nameOrDescription - a part of name or description
+     * @param tag - tag name that certificate should contain
+     * @param sortColumns - columns by which sorting should be performed {@link SortColumn}
+     * @param sortTypes - Ascending or descending order {@link SortType}
+     */
+    public List<GiftCertificateDto> getWithParameters(Optional<String> nameOrDescription, Optional<String> tag, List<String> sortColumns, List<String> sortTypes) {
         GiftCertificatePreparedStatementCreator.GiftCertificateQueryBuilder queryBuilder = GiftCertificatePreparedStatementCreator.createBuilder();
-        search.ifPresent(queryBuilder::searchByNameOrDescription);
+        nameOrDescription.ifPresent(queryBuilder::searchByNameOrDescription);
         tag.ifPresent(queryBuilder::searchByTag);
         if (sortColumns.size() < sortTypes.size()) {
             throw new ServiceException(SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS);
@@ -182,8 +219,14 @@ public class GiftCertificateService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Deletes certificate with given id from database. If certificate not found
+     * throws ServiceException.
+     * @param id of certificate to be deleted.
+     */
     public void deleteCertificate(int id) {
-        if (!certificateRepository.delete(id)) {
+        boolean deleteResult = certificateRepository.delete(id);
+        if (!deleteResult) {
             throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
         }
     }

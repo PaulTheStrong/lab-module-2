@@ -10,6 +10,12 @@ public interface GiftCertificateRepository extends Repository<GiftCertificate> {
 
     Optional<GiftCertificate> update(GiftCertificate entity);
 
+    /**
+     * Performs special query with parameters
+     * @param preparedStatementCreator - holds the information about parameters
+     *        should be used in query e.g. tag, sorts, etc.
+     * @return List of certificates satisfying parameters.
+     */
     List<GiftCertificate> findBySpecification(PreparedStatementCreator preparedStatementCreator);
 
 }

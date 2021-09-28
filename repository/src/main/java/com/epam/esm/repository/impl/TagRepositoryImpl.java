@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
+import javax.validation.Validator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,6 @@ public class TagRepositoryImpl implements TagRepository {
 
     public static final String FIND_BY_ID = "SELECT * FROM tag WHERE id=?";
     public static final String FIND_ALL = "SELECT * FROM tag";
-    public static final String SAVE = "INSERT INTO tag (name) VALUE (LOWER(?)) ON DUPLICATE KEY UPDATE id=id;";
     public static final String DELETE_BY_ID = "DELETE FROM tag WHERE id = ?";
     private static final String SELECT_TAGS_BY_CERTIFICATE_ID = "SELECT t.id, t.name FROM tag t " +
             "INNER JOIN tag_certificate tc on t.id = tc.tag_id " +

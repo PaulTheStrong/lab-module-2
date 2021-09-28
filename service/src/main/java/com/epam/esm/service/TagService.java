@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_DELETE_ASSOCIATED_TAG;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_TAG;
 
 @Component
 @RequestMapping("Tag")
@@ -24,6 +26,11 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
+    /**
+     * @param id - tag object's id stored in database.
+     * @return tag with specified id from database if exists.
+     * Otherwise, throws ServiceException.
+     */
     public Tag getById(int id) {
         Optional<Tag> tagOptional = tagRepository.findById(id);
         if (!tagOptional.isPresent()) {
@@ -32,6 +39,11 @@ public class TagService {
         return tagOptional.get();
     }
 
+    /**
+     * Deletes tag from database if it exists and is not associated with any
+     * certificate. Otherwise, throws ServiceException.
+     * @param id - tag object's id to be deleted.
+     */
     public void delete(int id) {
         if (tagRepository.countAssociatedCertificates(id) != 0) {
             throw new ServiceException(UNABLE_TO_DELETE_ASSOCIATED_TAG, id);
@@ -41,17 +53,25 @@ public class TagService {
         }
     }
 
+    /**
+     * Saves tag object with lowercase name in database.
+     * If error occurs during saving process, ServiceException is thrown.
+     * @param tag - tag object to be saved in database.
+     * @return Updated Tag object saved in database with newly assigned id.
+     */
     public Tag save(Tag tag) {
         String lowerCaseName = tag.getName().toLowerCase(Locale.ROOT);
         tag.setName(lowerCaseName);
-        tagRepository.save(tag);
-        Optional<Tag> updatedTag = tagRepository.findByName(lowerCaseName);
+        Optional<Tag> updatedTag = tagRepository.save(tag);
         if (!updatedTag.isPresent()) {
             throw new ServiceException(UNABLE_TO_SAVE_TAG, lowerCaseName);
         }
         return updatedTag.get();
     }
 
+    /**
+     * @return All tag objects found in database.
+     */
     public List<Tag> getAll() {
         return tagRepository.findAll();
     }

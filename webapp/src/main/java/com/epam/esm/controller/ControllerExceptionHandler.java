@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
+import static com.epam.esm.exception.ExceptionCodes.METHOD_NOT_SUPPORTED;
 import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;
 
 @ControllerAdvice
@@ -78,4 +80,15 @@ public class ControllerExceptionHandler {
         String localizedMessage = messageTranslator.toLocale(errorCode, requiredType, resultType, value.toString());
         return new HttpErrorResponse(errorCode, localizedMessage);
     }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ResponseBody
+    public HttpErrorResponse handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        String method = e.getMethod();
+        String errorCode = METHOD_NOT_SUPPORTED;
+        String localizedMessage = messageTranslator.toLocale(errorCode, method);
+        return new HttpErrorResponse(errorCode, localizedMessage);
+    }
+
 }

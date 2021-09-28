@@ -23,16 +23,15 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
             "UPDATE gift_certificate SET " +
             "name=?, description=?, price=?, duration=?, last_update_date=? " +
             "WHERE id=?";
-    private static final String SAVE = "INSERT INTO gift_certificate " +
-            "(name, description, price, duration, " +
-            "create_date, last_update_date) " +
-            "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String GET_BY_ID =
             "SELECT * FROM gift_certificate WHERE id=?";
     public static final String DELETE_BY_ID = "DELETE FROM gift_certificate WHERE id=?";
-    private static final String GET_CERTIFICATES_BY_TAG_NAME = "SELECT c.* FROM gift_certificate c " +
-            "INNER JOIN tag_certificate tc on c.id = tc.certificate_id " +
-            "INNER JOIN tag t on tc.tag_id = t.id WHERE t.name = ?";
+    private static final String NAME = "name";
+    private static final String DESCRIPTION = "description";
+    private static final String PRICE = "price";
+    private static final String DURATION = "duration";
+    private static final String CREATE_DATE = "create_date";
+    private static final String LAST_UPDATE_DATE = "last_update_date";
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<GiftCertificate> mapper;
     private final SimpleJdbcInsert jdbcInsert;
@@ -56,15 +55,19 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     public Optional<GiftCertificate> save(GiftCertificate entity) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("name", entity.getName());
-        parameters.put("description", entity.getDescription());
-        parameters.put("price", entity.getPrice());
-        parameters.put("duration", entity.getDuration());
-        parameters.put("create_date", entity.getCreateDate());
-        parameters.put("last_update_date", entity.getLastUpdateDate());
+        prepareParameters(entity, parameters);
         Number id = jdbcInsert.executeAndReturnKey(parameters);
         entity.setId(id.intValue());
         return Optional.of(entity);
+    }
+
+    private void prepareParameters(GiftCertificate entity, Map<String, Object> parameters) {
+        parameters.put(NAME, entity.getName());
+        parameters.put(DESCRIPTION, entity.getDescription());
+        parameters.put(PRICE, entity.getPrice());
+        parameters.put(DURATION, entity.getDuration());
+        parameters.put(CREATE_DATE, entity.getCreateDate());
+        parameters.put(LAST_UPDATE_DATE, entity.getLastUpdateDate());
     }
 
     @Override

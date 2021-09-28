@@ -37,13 +37,14 @@ public class GiftCertificatePreparedStatementCreator implements PreparedStatemen
     public class GiftCertificateQueryBuilder {
         private static final String WHERE = " WHERE ";
         private static final String AND = " AND ";
-        private static final String SEARCH_NAME_OR_DESCRIPTION_SUFFIX = "(gc.description LIKE CONCAT('%', ?, '%') " +
-                "OR gc.name LIKE CONCAT('%', ?, '%'))";
+        private static final String SEARCH_NAME_OR_DESCRIPTION_SUFFIX =
+                "(gift_certificate.description LIKE CONCAT('%', ?, '%') " +
+                "OR gift_certificate.name LIKE CONCAT('%', ?, '%'))";
         private static final String ORDER_BY = " ORDER BY ";
-        private static final String BASE_SQL = "SELECT gc.* FROM gift_certificate gc";
+        private static final String BASE_SQL = "SELECT gift_certificate.* FROM gift_certificate";
         private static final String BY_TAG_SUFFIX =
-                " INNER JOIN tag_certificate tc ON tc.certificate_id = gc.id " +
-                        "INNER JOIN tag t ON t.id = tc.tag_id WHERE (t.name = ?)";
+                " INNER JOIN tag_certificate ON tag_certificate.certificate_id = gift_certificate.id " +
+                        "INNER JOIN tag ON tag.id = tag_certificate.tag_id WHERE (t.name = ?)";
 
         private GiftCertificateQueryBuilder() {}
 

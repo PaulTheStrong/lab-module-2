@@ -6,7 +6,21 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DESCRIPTION_LENGTH_CONSTRAINT;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DURATION_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DURATION_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NAME_LENGTH_CONSTRAINT;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NAME_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
+import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_OR_ID_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_CERTIFICATE;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_TAG;
 
 public class ErrorCodeToHttpStatusMapper {
 
@@ -29,11 +43,6 @@ public class ErrorCodeToHttpStatusMapper {
             UNABLE_TO_SAVE_CERTIFICATE,
             UNABLE_TO_SAVE_TAG
     ));
-
-    private static final Set<String> INTERNAL_ERROR = new HashSet<>(Arrays.asList(
-
-    ));
-
 
     public HttpStatus errorCodeToStatus(String errorCode) {
         if (BAD_REQUEST.contains(errorCode)) {

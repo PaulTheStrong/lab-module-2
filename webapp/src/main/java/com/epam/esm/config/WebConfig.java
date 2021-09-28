@@ -17,6 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import javax.validation.ValidationProviderResolver;
 import java.util.Locale;
 
 @Configuration
@@ -60,7 +61,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public LocalValidatorFactoryBean getValidatorFactory() {
+    public LocalValidatorFactoryBean localValidatorFactory() {
         LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean();
         localValidatorFactoryBean.getValidationPropertyMap().put("hibernate.validator.fail_fast", "true");
         return localValidatorFactoryBean;
