@@ -30,6 +30,6 @@ public class RestBasicsWebAppInitializer
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         super.onStartup(servletContext);
-        servletContext.setInitParameter(SPRING_PROFILES_ACTIVE, DEV_PROFILE);
+        servletContext.setInitParameter(SPRING_PROFILES_ACTIVE, PROD_PROFILE);
     }
 }

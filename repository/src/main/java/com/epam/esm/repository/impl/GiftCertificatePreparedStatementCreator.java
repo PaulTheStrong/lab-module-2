@@ -44,7 +44,7 @@ public class GiftCertificatePreparedStatementCreator implements PreparedStatemen
         private static final String BASE_SQL = "SELECT gift_certificate.* FROM gift_certificate";
         private static final String BY_TAG_SUFFIX =
                 " INNER JOIN tag_certificate ON tag_certificate.certificate_id = gift_certificate.id " +
-                        "INNER JOIN tag ON tag.id = tag_certificate.tag_id WHERE (t.name = ?)";
+                        "INNER JOIN tag ON tag.id = tag_certificate.tag_id WHERE (tag.name = ?)";
 
         private GiftCertificateQueryBuilder() {}
 

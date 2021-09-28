@@ -11,6 +11,7 @@ import com.epam.esm.repository.impl.SortColumn;
 import com.epam.esm.repository.impl.SortType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -48,6 +49,7 @@ public class GiftCertificateService {
      * @param giftCertificateDto - data to be saved
      * @return updated gift certificate dto with id, tags
      */
+    @Transactional
     public GiftCertificateDto addCertificate(GiftCertificateDto giftCertificateDto) {
         GiftCertificate certificate = dtoMapper.dtoToGiftCertificate(giftCertificateDto);
 
@@ -76,6 +78,7 @@ public class GiftCertificateService {
      * @return updated dto if certificate with given dto exists. Otherwise, throws
      * service exception.
      */
+    @Transactional
     public GiftCertificateDto updateCertificate(GiftCertificateDto certificateDto, int id) {
         Optional<GiftCertificate> certificateOpt = certificateRepository.findById(id);
         if (!certificateOpt.isPresent()) {

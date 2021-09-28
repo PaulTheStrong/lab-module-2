@@ -26,12 +26,14 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private static final String GET_BY_ID =
             "SELECT * FROM gift_certificate WHERE id=?";
     public static final String DELETE_BY_ID = "DELETE FROM gift_certificate WHERE id=?";
+
     private static final String NAME = "name";
     private static final String DESCRIPTION = "description";
     private static final String PRICE = "price";
     private static final String DURATION = "duration";
     private static final String CREATE_DATE = "create_date";
     private static final String LAST_UPDATE_DATE = "last_update_date";
+
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<GiftCertificate> mapper;
     private final SimpleJdbcInsert jdbcInsert;
@@ -55,13 +57,13 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     public Optional<GiftCertificate> save(GiftCertificate entity) {
         Map<String, Object> parameters = new HashMap<>();
-        prepareParameters(entity, parameters);
+        prepareParametersMapForInsert(entity, parameters);
         Number id = jdbcInsert.executeAndReturnKey(parameters);
         entity.setId(id.intValue());
         return Optional.of(entity);
     }
 
-    private void prepareParameters(GiftCertificate entity, Map<String, Object> parameters) {
+    private void prepareParametersMapForInsert(GiftCertificate entity, Map<String, Object> parameters) {
         parameters.put(NAME, entity.getName());
         parameters.put(DESCRIPTION, entity.getDescription());
         parameters.put(PRICE, entity.getPrice());
