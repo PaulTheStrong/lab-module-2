@@ -20,7 +20,6 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import java.util.Locale;
 
 @Configuration
-@EnableWebMvc
 @ComponentScan("com.epam.esm")
 @PropertySource("classpath:webapp.properties")
 public class WebConfig implements WebMvcConfigurer {
@@ -28,18 +27,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
         registry.enableContentNegotiation(new MappingJackson2JsonView());
-    }
-
-    @Bean
-    public LocaleResolver localeResolver(@Value("${defaultLocale}") String defaultLocale) {
-        AcceptHeaderLocaleResolver acceptHeaderLocaleResolver = new AcceptHeaderLocaleResolver();
-        acceptHeaderLocaleResolver.setDefaultLocale(new Locale(defaultLocale));
-        return acceptHeaderLocaleResolver;
-    }
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
-        return new PropertySourcesPlaceholderConfigurer();
     }
 
     @Bean
