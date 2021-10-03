@@ -1,4 +1,4 @@
-package com.epam.esm.repository.impl;
+package com.epam.esm.repository.impl.jdbc;
 
 import java.util.Locale;
 

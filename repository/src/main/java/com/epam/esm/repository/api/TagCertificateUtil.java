@@ -1,12 +1,10 @@
-package com.epam.esm.repository;
+package com.epam.esm.repository.api;
 
 import com.epam.esm.entities.Tag;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface TagRepository extends Repository<Tag> {
-
+public interface TagCertificateUtil {
     /**
      * Finds all the tags associated with certificate with specified id
      */
@@ -21,8 +19,6 @@ public interface TagRepository extends Repository<Tag> {
      * Removes association between certificate and tag in bundle table
      */
     void removeCertificateTagAssociation(int certificateId, int tagId);
-
-    Optional<Tag> findByName(String name);
 
     /**
      * @param tagId id of the tag, that should be used in search

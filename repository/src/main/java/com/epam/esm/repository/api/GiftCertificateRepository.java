@@ -1,12 +1,15 @@
-package com.epam.esm.repository;
+package com.epam.esm.repository.api;
 
 import com.epam.esm.entities.GiftCertificate;
+import com.epam.esm.repository.impl.FilterParameters;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface GiftCertificateRepository extends Repository<GiftCertificate> {
+public interface GiftCertificateRepository
+        extends Findable<GiftCertificate>, Deletable<GiftCertificate>,
+        Updatable<GiftCertificate>, Savable<GiftCertificate> {
 
     /**
      * Updates gift certificate in database
@@ -18,10 +21,13 @@ public interface GiftCertificateRepository extends Repository<GiftCertificate> {
 
     /**
      * Performs special query with parameters
-     * @param preparedStatementCreator holds the information about parameters
+     * @param filterParameters holds the information about parameters
      *        should be used in query e.g. tag, sorts, etc.
      * @return List of certificates satisfying parameters.
      */
-    List<GiftCertificate> findBySpecification(PreparedStatementCreator preparedStatementCreator);
+    List<GiftCertificate> findBySpecification(FilterParameters filterParameters);
 
+    default List<GiftCertificate> findBySpecification(FilterParameters filterParameters, int pageNumber, int pageSize) {
+        throw new UnsupportedOperationException();
+    }
 }
