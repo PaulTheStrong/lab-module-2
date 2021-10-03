@@ -29,7 +29,7 @@ import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_SP
 @NoArgsConstructor
 public class GiftCertificateDto {
 
-    private int id;
+    private Integer id;
 
     @NotNull(groups = SaveDto.class, message = CERTIFICATE_NAME_MUST_BE_SPECIFIED)
     @Size(min = 1, max = 20, groups = {SaveDto.class, PatchDto.class},

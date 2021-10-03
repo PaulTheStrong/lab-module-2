@@ -2,7 +2,7 @@ package test.com.epam.esm.service;
 
 import com.epam.esm.entities.Tag;
 import com.epam.esm.exception.ServiceException;
-import com.epam.esm.repository.TagRepository;
+import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.TagService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -57,7 +57,7 @@ public class TagServiceTest {
         List<Tag> tagList = Arrays.asList(TEST_TAGS);
         Mockito.when(tagRepository.findAll()).thenReturn(tagList);
 
-        List<Tag> result = tagService.getAll();
+        List<Tag> result = tagService.getTags();
 
         Assertions.assertTrue(result.containsAll(tagList));
     }
@@ -66,7 +66,7 @@ public class TagServiceTest {
     public void testGetAllShouldReturnEmptyListWhenNothingFound() {
         Mockito.when(tagRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Tag> result = tagService.getAll();
+        List<Tag> result = tagService.getTags();
 
         Assertions.assertTrue(result.isEmpty());
     }

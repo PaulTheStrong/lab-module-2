@@ -6,22 +6,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
-import java.util.Locale;
-
 @Configuration
-@ComponentScan("com.epam.esm")
+@ComponentScan(basePackages = {"com.epam.esm"})
 @PropertySource("classpath:webapp.properties")
+@Import(value = {RepositoryConfig.class})
 public class WebConfig implements WebMvcConfigurer {
 
     @Override

@@ -5,6 +5,8 @@ import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -34,6 +36,7 @@ public class DtoMapper {
         giftCertificate.setDuration(dto.getDuration());
         giftCertificate.setCreateDate(dto.getCreateDate());
         giftCertificate.setLastUpdateDate(dto.getLastUpdateDate());
+        giftCertificate.setTags(new ArrayList<>());
         return giftCertificate;
     }
 }

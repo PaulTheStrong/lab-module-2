@@ -4,8 +4,9 @@ import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.exception.ServiceException;
-import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.TagRepository;
+import com.epam.esm.repository.api.GiftCertificateRepository;
+import com.epam.esm.repository.api.TagCertificateUtil;
+import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.service.DtoMapper;
 import com.epam.esm.service.GiftCertificateService;
 import org.junit.jupiter.api.Assertions;
@@ -32,13 +33,15 @@ public class GiftCertificateServiceTest {
     private final TagRepository mockTagRepository;
     private final DtoMapper mockDtoMapper;
     private final GiftCertificateService service;
+    private final TagCertificateUtil mockTagCertificateUtil;
 
     @Autowired
-    public GiftCertificateServiceTest(GiftCertificateRepository mockCertificateRepository, TagRepository mockTagRepository, DtoMapper mockDtoMapper, GiftCertificateService service) {
+    public GiftCertificateServiceTest(GiftCertificateRepository mockCertificateRepository, TagRepository mockTagRepository, DtoMapper mockDtoMapper, GiftCertificateService service, TagCertificateUtil mockTagCertificateUtil) {
         this.mockCertificateRepository = mockCertificateRepository;
         this.mockTagRepository = mockTagRepository;
         this.mockDtoMapper = mockDtoMapper;
         this.service = service;
+        this.mockTagCertificateUtil = mockTagCertificateUtil;
     }
 
     private static final Tag[] TEST_TAGS = {
@@ -61,15 +64,15 @@ public class GiftCertificateServiceTest {
 
     @Test
     public void testGetAllCertificatesWhenRepositoryNotEmptyShouldReturnAllDtosWithTags() {
-        Mockito.when(mockTagRepository.findTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
-        Mockito.when(mockTagRepository.findTagsByCertificateId(1)).thenReturn(TAGS_FOR_CERTIFICATE_2);
+        Mockito.when(mockTagCertificateUtil.findTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
+        Mockito.when(mockTagCertificateUtil.findTagsByCertificateId(1)).thenReturn(TAGS_FOR_CERTIFICATE_2);
 
         Mockito.when(mockCertificateRepository.findAll()).thenReturn(Arrays.asList(TEST_GIFT_CERTIFICATES));
 
         Mockito.when(mockDtoMapper.giftCertificateToDto(TEST_GIFT_CERTIFICATES[0], TAGS_FOR_CERTIFICATE_1)).thenReturn(TEST_DTOS[0]);
         Mockito.when(mockDtoMapper.giftCertificateToDto(TEST_GIFT_CERTIFICATES[1], TAGS_FOR_CERTIFICATE_2)).thenReturn(TEST_DTOS[1]);
 
-        List<GiftCertificateDto> result = service.getAll();
+        List<GiftCertificateDto> result = service.getCertificates();
 
         Assertions.assertEquals(TEST_DTOS[0], result.get(0));
         Assertions.assertEquals(TEST_DTOS[1], result.get(1));
@@ -82,14 +85,14 @@ public class GiftCertificateServiceTest {
     public void testGetAllCertificatesWhenRepositoryEmptyShouldReturnEmptyList() {
         Mockito.when(mockCertificateRepository.findAll()).thenReturn(Collections.EMPTY_LIST);
 
-        List<GiftCertificateDto> result = service.getAll();
+        List<GiftCertificateDto> result = service.getCertificates();
 
         Assertions.assertTrue(result.isEmpty());
     }
 
     @Test
     public void testGetCertificateByIdWhenCertificateInDatabaseShouldReturnNonEmptyResult() {
-        Mockito.when(mockTagRepository.findTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
+        Mockito.when(mockTagCertificateUtil.findTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
         Mockito.when(mockCertificateRepository.findById(TEST_GIFT_CERTIFICATES[0].getId())).thenReturn(Optional.of(TEST_GIFT_CERTIFICATES[0]));
         Mockito.when(mockDtoMapper.giftCertificateToDto(TEST_GIFT_CERTIFICATES[0], TAGS_FOR_CERTIFICATE_1)).thenReturn(TEST_DTOS[0]);
 
