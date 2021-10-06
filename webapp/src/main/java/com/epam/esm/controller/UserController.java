@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.data.OrderDto;
 import com.epam.esm.entities.Order;
 import com.epam.esm.entities.User;
 import com.epam.esm.service.UserService;
@@ -33,18 +34,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}/orders")
-    public List<Order> getUserOrders(@RequestParam Optional<Integer> page, @PathVariable int id) {
+    public List<OrderDto> getUserOrders(@RequestParam Optional<Integer> page, @PathVariable int id) {
         int pageNumber = page.orElse(1);
         return userService.getUserOrders(id, pageNumber, DEFAULT_PAGE_SIZE);
     }
 
     @GetMapping("/{userId}/orders/{orderNumber}")
-    public Order getUserOrder(@PathVariable int userId, @PathVariable int orderNumber) {
+    public OrderDto getUserOrder(@PathVariable int userId, @PathVariable int orderNumber) {
         return userService.getUserOrder(userId, orderNumber);
     }
 
     @PostMapping("/{userId}/purchase/{certificateId}")
-    public Order purchaseCertificate(@PathVariable int userId, @PathVariable int certificateId) {
+    public OrderDto purchaseCertificate(@PathVariable int userId, @PathVariable int certificateId) {
         return userService.purchaseCertificate(userId, certificateId);
     }
 }

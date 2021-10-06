@@ -3,7 +3,7 @@ package com.epam.esm.repository.impl.jdbc;
 import java.util.Locale;
 
 public enum SortColumn {
-    DATE("create_date"), NAME("name"), NONE("");
+    DATE("createDate"), NAME("name"), NONE("");
     private final String column;
 
     SortColumn(String column) {

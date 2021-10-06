@@ -17,7 +17,7 @@ import java.util.Optional;
 @Profile("jpa")
 public class JpaTagRepository implements TagRepository {
 
-    private static final String SELECT_BY_NAME = "SELECT tag FROM Tag tag WHERE tag.name LIKE CONCAT('%',:tagName,'%')";
+    private static final String SELECT_BY_NAME = "SELECT tag FROM Tag tag WHERE tag.name = :tagName";
     private static final String DELETE_BY_ID = "DELETE FROM Tag WHERE id =: id";
     private static final String SELECT_ALL = "SELECT tag FROM Tag tag";
     @PersistenceContext
@@ -25,8 +25,8 @@ public class JpaTagRepository implements TagRepository {
 
     @Override
     public Optional<Tag> save(Tag entity) {
-        entityManager.persist(entity);
-        return Optional.of(entity);
+        Tag merged = entityManager.merge(entity);
+        return Optional.of(merged);
     }
 
     @Override

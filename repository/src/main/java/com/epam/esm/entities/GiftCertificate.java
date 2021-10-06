@@ -37,7 +37,7 @@ public class GiftCertificate extends Identifiable {
     @Column(name="last_update_date")
     private LocalDateTime lastUpdateDate;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "tag_certificate",
             joinColumns = @JoinColumn(name="certificate_id"),
@@ -130,5 +130,15 @@ public class GiftCertificate extends Identifiable {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public void addTag(Tag tag) {
+        tags.add(tag);
+        tag.getCertificates().add(this);
+    }
+
+    public void removeTag(Tag tag) {
+        tags.remove(tag);
+        tag.getCertificates().remove(this);
     }
 }

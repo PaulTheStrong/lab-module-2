@@ -21,14 +21,6 @@ public class JpaUserOrderUtil implements UserOrderUtil {
     private EntityManager entityManager;
 
     @Override
-    public void addOrderToUser(int userId, int orderId) {
-        User user = entityManager.find(User.class, userId);
-        Order order = entityManager.find(Order.class, orderId);
-        List<Order> orders = user.getOrders();
-        orders.add(order);
-    }
-
-    @Override
     public List<Order> getUserOrders(int userId) {
         User user = entityManager.find(User.class, userId);
         return user.getOrders();

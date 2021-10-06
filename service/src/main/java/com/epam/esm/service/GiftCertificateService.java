@@ -10,12 +10,14 @@ import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.repository.impl.FilterParameters;
 import com.epam.esm.repository.impl.jdbc.SortColumn;
 import com.epam.esm.repository.impl.jdbc.SortType;
+import com.epam.esm.validator.DtoTag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -37,14 +39,12 @@ public class GiftCertificateService {
     private final GiftCertificateRepository certificateRepository;
     private final TagRepository tagRepository;
     private final DtoMapper dtoMapper;
-    private final TagCertificateUtil tagCertificateUtil;
 
     @Autowired
     public GiftCertificateService(GiftCertificateRepository certificateRepository, TagRepository tagRepository, DtoMapper dtoMapper, TagCertificateUtil tagCertificateUtil) {
         this.certificateRepository = certificateRepository;
         this.tagRepository = tagRepository;
         this.dtoMapper = dtoMapper;
-        this.tagCertificateUtil = tagCertificateUtil;
     }
 
     /**
@@ -61,20 +61,13 @@ public class GiftCertificateService {
         certificate.setCreateDate(now);
         certificate.setLastUpdateDate(now);
 
+        List<Tag> tags = certificate.getTags();
+        getTagNamesByIdOrSaveInRepository(new HashSet<>(tags));
         Optional<GiftCertificate> save = certificateRepository.save(certificate);
         if (!save.isPresent()) {
-            String name = giftCertificateDto.getName();
-            throw new ServiceException(UNABLE_TO_SAVE_CERTIFICATE, name);
+            throw new ServiceException("Unable to save certificate");
         }
-        Integer id = save.get().getId();
-        giftCertificateDto.setId(id);
-        giftCertificateDto.setCreateDate(certificate.getCreateDate());
-        giftCertificateDto.setLastUpdateDate(certificate.getLastUpdateDate());
-        if (giftCertificateDto.getTags() == null) {
-            giftCertificateDto.setTags(Collections.emptyList());
-        }
-        updateTags(giftCertificateDto);
-        return giftCertificateDto;
+        return dtoMapper.giftCertificateToDto(save.get());
     }
 
     /**
@@ -89,7 +82,6 @@ public class GiftCertificateService {
         if (!certificateOpt.isPresent()) {
             throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
         }
-        certificateDto.setId(id);
         GiftCertificate oldEntity = certificateOpt.get();
         Double duration = certificateDto.getDuration();
         if (duration != null) {
@@ -110,36 +102,32 @@ public class GiftCertificateService {
             oldEntity.setPrice(price);
         }
 
-        if (certificateDto.getTags() != null) {
-            updateTags(certificateDto);
+        List<Tag> newTags = certificateDto.getTags();
+        if (newTags != null) {
+            updateTags(oldEntity, oldEntity.getTags(), newTags);
         }
 
         oldEntity.setLastUpdateDate(LocalDateTime.now());
-        certificateRepository.update(oldEntity);
-
-        List<Tag> newTags = tagCertificateUtil.findTagsByCertificateId(id);
-        return dtoMapper.giftCertificateToDto(oldEntity, newTags);
+        return dtoMapper.giftCertificateToDto(oldEntity);
     }
 
-    private void updateTags(GiftCertificateDto newEntity) {
-        int certificateId = newEntity.getId();
-        List<Tag> existingTags = tagCertificateUtil.findTagsByCertificateId(certificateId);
-        Set<Tag> oldTags = new HashSet<>(existingTags);
-        Set<Tag> newTags = new HashSet<>(newEntity.getTags());
+    private void updateTags(GiftCertificate certificate, List<Tag> oldTags, List<Tag> newTags) {
+        Set<Tag> oldTagsSet = new HashSet<>(oldTags);
+        Set<Tag> newTagsSet = new HashSet<>(newTags);
 
-        getTagNamesByIdOrSaveInRepository(newTags);
-        addAndRemoveAssociationsForCertificate(certificateId, oldTags, newTags);
+        getTagNamesByIdOrSaveInRepository(newTagsSet);
+        addAndRemoveAssociationsForCertificate(certificate, oldTagsSet, newTagsSet);
     }
 
-    private void addAndRemoveAssociationsForCertificate(int certificateId, Set<Tag> oldTags, Set<Tag> newTags) {
+    private void addAndRemoveAssociationsForCertificate(GiftCertificate certificateEntity, Set<Tag> oldTags, Set<Tag> newTags) {
         Set<Tag> tagsToRemove = new HashSet<>(oldTags);
         tagsToRemove.removeAll(newTags);
 
         Set<Tag> tagsToAdd = new HashSet<>(newTags);
         tagsToAdd.removeAll(oldTags);
 
-        tagsToRemove.forEach(tag -> tagCertificateUtil.removeCertificateTagAssociation(certificateId, tag.getId()));
-        tagsToAdd.forEach(tag -> tagCertificateUtil.addCertificateTagAssociation(certificateId, tag.getId()));
+        tagsToRemove.forEach(certificateEntity::removeTag);
+        tagsToAdd.forEach(certificateEntity::addTag);
     }
 
     //For each tag, sent by user, find tag in repository by id
@@ -160,9 +148,13 @@ public class GiftCertificateService {
         Optional<Tag> tagByName = tagRepository.findByName(tag.getName());
         if (!tagByName.isPresent()) {
             Optional<Tag> savedTag = tagRepository.save(tag);
-            savedTag.ifPresent(t -> tag.setId(t.getId()));
+            savedTag.ifPresent(t -> {
+                tag.setId(t.getId());
+            });
         } else {
-            tag.setId(tagByName.get().getId());
+            Tag savedTag = tagByName.get();
+            tag.setId(savedTag.getId());
+            tag.setCertificates(savedTag.getCertificates());
         }
     }
 
@@ -172,7 +164,9 @@ public class GiftCertificateService {
         if (!tagByIdInRepository.isPresent()) {
             throw new ServiceException(TAG_NOT_FOUND, tagId);
         }
-        tag.setName(tagByIdInRepository.get().getName());
+        Tag tagFromDatabase = tagByIdInRepository.get();
+        tag.setName(tagFromDatabase.getName());
+        tag.setCertificates(tagFromDatabase.getCertificates());
     }
 
     /**
@@ -185,8 +179,7 @@ public class GiftCertificateService {
         if (!certificate.isPresent()) {
             throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
         }
-        List<Tag> tags = tagCertificateUtil.findTagsByCertificateId(id);
-        return dtoMapper.giftCertificateToDto(certificate.get(), tags);
+        return dtoMapper.giftCertificateToDto(certificate.get());
     }
 
     /**
@@ -195,10 +188,7 @@ public class GiftCertificateService {
     public List<GiftCertificateDto> getCertificates(int pageNumber, int pageSize) {
         return certificateRepository.findAll(pageNumber, pageSize)
                 .stream()
-                .map(cert -> {
-                    List<Tag> tagsByCertificateId = tagCertificateUtil.findTagsByCertificateId(cert.getId());
-                    return dtoMapper.giftCertificateToDto(cert, tagsByCertificateId);
-                })
+                .map(dtoMapper::giftCertificateToDto)
                 .collect(Collectors.toList());
     }
 
@@ -236,7 +226,7 @@ public class GiftCertificateService {
         FilterParameters parameters = builder.build();
         List<GiftCertificate> foundCertificates = certificateRepository.findBySpecification(parameters, pageNumber, pageSize);
         return foundCertificates.stream()
-                .map(cert -> dtoMapper.giftCertificateToDto(cert, tagCertificateUtil.findTagsByCertificateId(cert.getId())))
+                .map(dtoMapper::giftCertificateToDto)
                 .collect(Collectors.toList());
     }
 

@@ -7,12 +7,12 @@ import com.epam.esm.repository.impl.jdbc.SortColumn;
 import com.epam.esm.repository.impl.jdbc.SortType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,8 +57,9 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
 
     @Override
     public Optional<GiftCertificate> save(GiftCertificate entity) {
-        entityManager.persist(entity);
-        return Optional.of(entity);
+        GiftCertificate merged = entityManager.merge(entity);
+        merged.getTags().forEach(tag -> tag.getCertificates().add(merged));
+        return Optional.of(merged);
     }
 
     @Override
@@ -94,9 +95,10 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
     private TypedQuery<GiftCertificate> buildQuery(FilterParameters filterParameters) {
         StringBuilder queryBuilder = new StringBuilder("SELECT c FROM GiftCertificate c ");
         Set<String> tags = filterParameters.getTags();
+        List<String> tagParameters = new ArrayList<>();
         if (tags != null && tags.size() > 0) {
             queryBuilder.append(" JOIN c.tags t WHERE t.name in (");
-            String tagsToAppend = tags.stream().reduce("", (tagsString, tag) -> tagsString + ":_" + tag + ",");
+            String tagsToAppend = tags.stream().reduce("", (tagsString, tag) -> tagsString.replace(" ", "_") + ":_" + tag + ",");
             tagsToAppend = tagsToAppend.substring(0, tagsToAppend.length() - 1);
             queryBuilder.append(tagsToAppend).append(")");
         }
@@ -123,7 +125,7 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
         }
         TypedQuery<GiftCertificate> query = entityManager.createQuery(queryBuilder.toString(), GiftCertificate.class);
         if (tags != null) {
-            tags.forEach(tag -> query.setParameter("_" + tag, tag));
+            tags.forEach(tag -> query.setParameter("_" + tag.replace(" ", "_"), tag));
         }
         if (search != null) {
             query.setParameter("search", search);

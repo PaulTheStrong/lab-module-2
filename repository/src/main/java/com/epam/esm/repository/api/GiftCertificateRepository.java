@@ -2,7 +2,6 @@ package com.epam.esm.repository.api;
 
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.repository.impl.FilterParameters;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 
 import java.util.List;
 import java.util.Optional;

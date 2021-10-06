@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -23,7 +22,7 @@ public class Tag extends Identifiable {
     private String name;
 
     @ManyToMany(mappedBy = "tags")
-    private List<GiftCertificate> certificates;
+    private List<GiftCertificate> certificates = new ArrayList<>();
 
     public Tag(Integer id, String name) {
         super(id);

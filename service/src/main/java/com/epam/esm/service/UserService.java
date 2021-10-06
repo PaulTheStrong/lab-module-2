@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.data.OrderDto;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Order;
 import com.epam.esm.entities.User;
@@ -16,6 +17,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
+import static com.epam.esm.exception.ExceptionCodes.ORDER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_ORDER;
+import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
 
 @Transactional
 @Service
@@ -38,42 +46,45 @@ public class UserService {
         return userRepository.findAll(pageNumber, pageSize);
     }
 
-    public List<Order> getUserOrders(int userId, int pageNumber, int pageSize) {
+    public List<OrderDto> getUserOrders(int userId, int pageNumber, int pageSize) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
-            throw new ServiceException("User not found", userId);
+            throw new ServiceException(USER_NOT_FOUND, userId);
         }
-        return userOrderUtil.getUserOrders(userId, pageNumber, pageSize);
+        return userOrderUtil.getUserOrders(userId, pageNumber, pageSize)
+                .stream()
+                .map(OrderDto::new)
+                .collect(Collectors.toList());
     }
 
-    public Order getUserOrder(int userId, int orderNumber) {
+    public OrderDto getUserOrder(int userId, int orderNumber) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
-            throw new ServiceException("User not found", userId);
+            throw new ServiceException(USER_NOT_FOUND, userId);
         }
         List<Order> orders = user.get().getOrders();
         orderNumber -= 1;
         if (orderNumber < 0 || orders.size() < orderNumber) {
-            throw new ServiceException("Order doesn't exist", orderNumber);
+            throw new ServiceException(ORDER_NOT_FOUND, orderNumber);
         }
-        return orders.get(orderNumber);
+        return new OrderDto(orders.get(orderNumber));
     }
 
-    public Order purchaseCertificate(int userId, int certificateId) {
+    public OrderDto purchaseCertificate(int userId, int certificateId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (!userOptional.isPresent()) {
-            throw new ServiceException("User not found", userId);
+            throw new ServiceException(USER_NOT_FOUND, userId);
         }
         Optional<GiftCertificate> certificateOptional = giftCertificateRepository.findById(certificateId);
         if (!certificateOptional.isPresent()) {
-            throw new ServiceException("Certificate not found", userId);
+            throw new ServiceException(CERTIFICATE_NOT_FOUND, userId);
         }
         GiftCertificate certificate = certificateOptional.get();
         User user = userOptional.get();
         BigDecimal balance = user.getBalance();
         BigDecimal price = certificate.getPrice();
         if (balance.compareTo(price) < 0) {
-            throw new ServiceException("Not enough money");
+            throw new ServiceException(NOT_ENOUGH_MONEY);
         }
         BigDecimal newBalance = balance.subtract(price);
         user.setBalance(newBalance);
@@ -81,9 +92,9 @@ public class UserService {
         Order order = new Order(price, now, user, certificate);
         Optional<Order> savedOrder = orderRepository.save(order);
         if (!savedOrder.isPresent()) {
-            throw new ServiceException("Unable to save order");
+            throw new ServiceException(UNABLE_TO_SAVE_ORDER);
         }
-        return order;
+        return new OrderDto(order);
     }
 
 }

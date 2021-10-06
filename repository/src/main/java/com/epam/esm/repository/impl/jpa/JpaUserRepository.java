@@ -1,5 +1,6 @@
 package com.epam.esm.repository.impl.jpa;
 
+import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
 import com.epam.esm.repository.api.UserRepository;
 import org.springframework.context.annotation.Profile;
@@ -39,5 +40,13 @@ public class JpaUserRepository implements UserRepository {
         findAllQuery.setFirstResult((pageNumber - 1) * pageSize);
         findAllQuery.setMaxResults(pageSize);
         return findAllQuery.getResultList();
+    }
+
+    @Override
+    public Tag getMostUsedTagOfUserWithHighestCostOfAllOrders() {
+        TypedQuery<Tag> query = entityManager.createQuery(
+                "SELECT u.id, sum(o.totalPrice) FROM TheOrder o JOIN o.user u GROUP BY u.id",
+                Tag.class);
+        return query.getSingleResult();
     }
 }

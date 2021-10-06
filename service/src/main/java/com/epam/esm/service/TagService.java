@@ -65,6 +65,9 @@ public class TagService {
      * @return Updated Tag object saved in database with newly assigned id.
      */
     public Tag save(Tag tag) {
+        if (tagRepository.findByName(tag.getName()).isPresent()) {
+            throw new ServiceException("Tag already exists");
+        }
         String lowerCaseName = tag.getName().toLowerCase(Locale.ROOT);
         tag.setName(lowerCaseName);
         Optional<Tag> updatedTag = tagRepository.save(tag);
@@ -78,6 +81,6 @@ public class TagService {
      * @return All tag objects found in database.
      */
     public List<Tag> getTags(int pageNumber, int pageSize) {
-        return tagRepository.findAll();
+        return tagRepository.findAll(pageNumber, pageSize);
     }
 }
