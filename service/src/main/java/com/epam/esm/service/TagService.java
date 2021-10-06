@@ -2,9 +2,11 @@ package com.epam.esm.service;
 
 import com.epam.esm.entities.Tag;
 import com.epam.esm.exception.ServiceException;
-import com.epam.esm.repository.TagRepository;
+import com.epam.esm.repository.api.TagCertificateUtil;
+import com.epam.esm.repository.api.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -17,13 +19,16 @@ import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_TAG;
 
 @Component
 @RequestMapping("Tag")
+@Transactional
 public class TagService {
 
     private final TagRepository tagRepository;
+    private final TagCertificateUtil tagCertificateUtil;
 
     @Autowired
-    public TagService(TagRepository tagRepository) {
+    public TagService(TagRepository tagRepository, TagCertificateUtil tagCertificateUtil) {
         this.tagRepository = tagRepository;
+        this.tagCertificateUtil = tagCertificateUtil;
     }
 
     /**
@@ -45,7 +50,7 @@ public class TagService {
      * @param id - tag object's id to be deleted.
      */
     public void delete(int id) {
-        if (tagRepository.countAssociatedCertificates(id) != 0) {
+        if (tagCertificateUtil.countAssociatedCertificates(id) != 0) {
             throw new ServiceException(UNABLE_TO_DELETE_ASSOCIATED_TAG, id);
         }
         if (!tagRepository.delete(id)) {
@@ -60,6 +65,9 @@ public class TagService {
      * @return Updated Tag object saved in database with newly assigned id.
      */
     public Tag save(Tag tag) {
+        if (tagRepository.findByName(tag.getName()).isPresent()) {
+            throw new ServiceException("Tag already exists");
+        }
         String lowerCaseName = tag.getName().toLowerCase(Locale.ROOT);
         tag.setName(lowerCaseName);
         Optional<Tag> updatedTag = tagRepository.save(tag);
@@ -72,7 +80,7 @@ public class TagService {
     /**
      * @return All tag objects found in database.
      */
-    public List<Tag> getAll() {
-        return tagRepository.findAll();
+    public List<Tag> getTags(int pageNumber, int pageSize) {
+        return tagRepository.findAll(pageNumber, pageSize);
     }
 }
