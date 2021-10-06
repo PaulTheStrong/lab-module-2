@@ -1,28 +1,7 @@
-apply plugin: 'java'
-
-
 group 'com.epam.esm'
 version '1.0'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-
-    implementation 'org.springframework:spring-webmvc:5.3.9'
-    implementation 'javax.servlet:javax.servlet-api:3.1.0'
-
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
-
     implementation project(':repository')
     implementation project(':service')
-
-}
-
-test {
-    useJUnitPlatform()
 }
