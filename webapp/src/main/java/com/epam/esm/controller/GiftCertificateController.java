@@ -21,13 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/certificates")
 public class GiftCertificateController {
 
-    public static final int DEFAULT_PAGE_SIZE = 10;
     private final GiftCertificateService giftCertificateService;
 
     @Autowired
@@ -46,7 +44,7 @@ public class GiftCertificateController {
 
     /**
      * @param nameOrDescription - a part of name or description of GiftCertificate
-     * @param tags - tag name associated with certificate
+     * @param tag - tag name associated with certificate
      * @param sortColumns - column name by which sorting is performed
      * @param sortTypes - soring order - ascending or descending
      * @return Filtered list of GiftCertificateDto if any of parameters is presented.
@@ -55,18 +53,14 @@ public class GiftCertificateController {
     @GetMapping
     public List<GiftCertificateDto> getCertificates(
             @RequestParam Optional<String> nameOrDescription,
-            @RequestParam Optional<Set<String>> tags,
+            @RequestParam Optional<String> tag,
             @RequestParam Optional<List<String>> sortColumns,
-            @RequestParam Optional<List<String>> sortTypes,
-            @RequestParam Optional<Integer> page
+            @RequestParam Optional<List<String>> sortTypes
     ) {
-        int pageNumber = page.orElse(1);
-        if (!nameOrDescription.isPresent() && !tags.isPresent() && !sortColumns.isPresent() && !sortTypes.isPresent()) {
-            return giftCertificateService.getCertificates(pageNumber, DEFAULT_PAGE_SIZE);
+        if (!nameOrDescription.isPresent() && !tag.isPresent() && !sortColumns.isPresent() && !sortTypes.isPresent()) {
+            return giftCertificateService.getAll();
         }
-        List<String> emptyList = Collections.emptyList();
-        return giftCertificateService.getWithParameters(nameOrDescription, tags,
-                sortColumns.orElse(emptyList), sortTypes.orElse(emptyList), pageNumber, DEFAULT_PAGE_SIZE);
+        return giftCertificateService.getWithParameters(nameOrDescription, tag, sortColumns.orElse(Collections.emptyList()), sortTypes.orElse(Collections.emptyList()));
     }
 
     /**

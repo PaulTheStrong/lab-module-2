@@ -11,20 +11,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tags")
 @Validated
 public class TagController {
 
-    public static final int DEFAULT_PAGE_SIZE = 10;
     private final TagService tagService;
 
     @Autowired
@@ -45,9 +42,8 @@ public class TagController {
      * @return List of all Tags stored in database.
      */
     @GetMapping
-    public List<Tag> getAll(@RequestParam Optional<Integer> page) {
-        int pageNumber = page.orElse(1);
-        return tagService.getTags(pageNumber, DEFAULT_PAGE_SIZE);
+    public List<Tag> getAll() {
+        return tagService.getAll();
     }
 
     /**

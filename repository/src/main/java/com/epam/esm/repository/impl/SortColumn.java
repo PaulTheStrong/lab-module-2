@@ -1,9 +1,9 @@
-package com.epam.esm.repository.impl.jdbc;
+package com.epam.esm.repository.impl;
 
 import java.util.Locale;
 
 public enum SortColumn {
-    DATE("createDate"), NAME("name"), NONE("");
+    DATE("gift_certificate.create_date"), NAME("gift_certificate.name"), NONE("");
     private final String column;
 
     SortColumn(String column) {

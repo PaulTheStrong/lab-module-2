@@ -6,6 +6,4 @@ rootProject.name = 'rest-basics'
 include 'repository'
 include 'service'
 include 'webapp'
-include 'jpa-repository'
-include 'jpa-repository'
 
