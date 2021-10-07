@@ -1,0 +1,7 @@
+group 'com.epam.esm'
+version '1.0'
+
+dependencies {
+    implementation project(':repository')
+    implementation project(':service')
+}
