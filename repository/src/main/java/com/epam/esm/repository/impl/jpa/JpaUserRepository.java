@@ -31,7 +31,7 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public Optional<User> findById(int id) {
         User user = entityManager.find(User.class, id);
-        return Optional.of(user);
+        return Optional.ofNullable(user);
     }
 
     @Override

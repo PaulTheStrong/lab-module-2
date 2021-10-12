@@ -1,10 +1,13 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.data.GiftCertificateDto;
+import com.epam.esm.hateoas.assembler.GiftCertificateModelAssembler;
+import com.epam.esm.hateoas.model.GiftCertificateModel;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.validator.PatchDto;
 import com.epam.esm.validator.SaveDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,12 +30,14 @@ import java.util.Set;
 @RequestMapping("/certificates")
 public class GiftCertificateController {
 
-    public static final int DEFAULT_PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE_SIZE = 10;
     private final GiftCertificateService giftCertificateService;
+    private final GiftCertificateModelAssembler giftCertificateModelAssembler;
 
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateModelAssembler giftCertificateModelAssembler) {
         this.giftCertificateService = giftCertificateService;
+        this.giftCertificateModelAssembler = giftCertificateModelAssembler;
     }
 
     /**
@@ -40,8 +45,9 @@ public class GiftCertificateController {
      * @return GiftCertificateDto object with tags associated with requested gift certificate.
      */
     @GetMapping(value = "/{id}")
-    public GiftCertificateDto getById(@PathVariable int id) {
-        return giftCertificateService.getById(id);
+    public GiftCertificateModel getById(@PathVariable int id) {
+        GiftCertificateDto certificate = giftCertificateService.getById(id);
+        return giftCertificateModelAssembler.toModel(certificate);
     }
 
     /**
@@ -53,20 +59,22 @@ public class GiftCertificateController {
      * Otherwise, all GiftCertificateDtos are returned.
      */
     @GetMapping
-    public List<GiftCertificateDto> getCertificates(
+    public CollectionModel<GiftCertificateModel> getCertificates(
             @RequestParam Optional<String> nameOrDescription,
             @RequestParam Optional<Set<String>> tags,
             @RequestParam Optional<List<String>> sortColumns,
             @RequestParam Optional<List<String>> sortTypes,
-            @RequestParam Optional<Integer> page
+            @RequestParam(defaultValue = "1") int page
     ) {
-        int pageNumber = page.orElse(1);
+        List<GiftCertificateDto> certificates;
         if (!nameOrDescription.isPresent() && !tags.isPresent() && !sortColumns.isPresent() && !sortTypes.isPresent()) {
-            return giftCertificateService.getCertificates(pageNumber, DEFAULT_PAGE_SIZE);
+            certificates = giftCertificateService.getCertificates(page, DEFAULT_PAGE_SIZE);
+        } else {
+            List<String> emptyList = Collections.emptyList();
+            certificates = giftCertificateService.getWithParameters(nameOrDescription, tags,
+                    sortColumns.orElse(emptyList), sortTypes.orElse(emptyList), page, DEFAULT_PAGE_SIZE);
         }
-        List<String> emptyList = Collections.emptyList();
-        return giftCertificateService.getWithParameters(nameOrDescription, tags,
-                sortColumns.orElse(emptyList), sortTypes.orElse(emptyList), pageNumber, DEFAULT_PAGE_SIZE);
+        return giftCertificateModelAssembler.toCollectionModel(certificates);
     }
 
     /**
@@ -76,8 +84,9 @@ public class GiftCertificateController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public GiftCertificateDto addCertificate(@Validated(SaveDto.class) @RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.addCertificate(giftCertificateDto);
+    public GiftCertificateModel addCertificate(@Validated(SaveDto.class) @RequestBody GiftCertificateDto giftCertificateDto) {
+        GiftCertificateDto certificate = giftCertificateService.addCertificate(giftCertificateDto);
+        return giftCertificateModelAssembler.toModel(certificate);
     }
 
     /**
@@ -87,8 +96,9 @@ public class GiftCertificateController {
      * @return Updated GiftCertificateDto.
      */
     @PatchMapping(value = "/{id}")
-    public GiftCertificateDto updateCertificate(@Validated(PatchDto.class) @RequestBody GiftCertificateDto giftCertificateDto, @PathVariable int id) {
-        return giftCertificateService.updateCertificate(giftCertificateDto, id);
+    public GiftCertificateModel updateCertificate(@Validated(PatchDto.class) @RequestBody GiftCertificateDto giftCertificateDto, @PathVariable int id) {
+        GiftCertificateDto certificate = giftCertificateService.updateCertificate(giftCertificateDto, id);
+        return giftCertificateModelAssembler.toModel(certificate);
     }
 
     /**

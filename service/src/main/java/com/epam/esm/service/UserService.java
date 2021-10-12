@@ -23,6 +23,7 @@ import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
 import static com.epam.esm.exception.ExceptionCodes.ORDER_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_ORDER;
+import static com.epam.esm.exception.ExceptionCodes.USER_DOESNT_HAVE_THIS_ORDER;
 import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
 
 @Transactional
@@ -57,17 +58,27 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public OrderDto getUserOrder(int userId, int orderNumber) {
+    public OrderDto getUserOrder(int userId, int orderId) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
             throw new ServiceException(USER_NOT_FOUND, userId);
         }
         List<Order> orders = user.get().getOrders();
-        orderNumber -= 1;
-        if (orderNumber < 0 || orders.size() < orderNumber) {
-            throw new ServiceException(ORDER_NOT_FOUND, orderNumber);
+        Optional<Order> orderOptional = orders.stream()
+                .filter(order -> order.getId() == orderId)
+                .findFirst();
+        if (!orderOptional.isPresent()) {
+            throw new ServiceException(USER_DOESNT_HAVE_THIS_ORDER);
         }
-        return new OrderDto(orders.get(orderNumber));
+        return new OrderDto(orderOptional.get());
+    }
+
+    public User getUserById(int userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            throw new ServiceException(USER_NOT_FOUND);
+        }
+        return user.get();
     }
 
     public OrderDto purchaseCertificate(int userId, int certificateId) {

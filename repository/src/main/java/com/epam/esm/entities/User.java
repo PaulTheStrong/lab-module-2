@@ -19,7 +19,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name="user")
-@JsonIgnoreProperties("orders")
 public class User extends Identifiable{
 
     @Column(name="username")

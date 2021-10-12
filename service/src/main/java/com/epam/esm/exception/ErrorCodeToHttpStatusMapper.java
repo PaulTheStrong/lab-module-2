@@ -2,6 +2,7 @@ package com.epam.esm.exception;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,12 +16,19 @@ import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_POSITIVE;
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
+import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
+import static com.epam.esm.exception.ExceptionCodes.ORDER_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_OR_ID_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_DELETE_ASSOCIATED_TAG;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_CERTIFICATE;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_ORDER;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_TAG;
+import static com.epam.esm.exception.ExceptionCodes.USER_DOESNT_HAVE_THIS_ORDER;
+import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
 
 public class ErrorCodeToHttpStatusMapper {
 
@@ -34,15 +42,26 @@ public class ErrorCodeToHttpStatusMapper {
         CERTIFICATE_DURATION_MUST_BE_SPECIFIED,
         TAG_NAME_MUST_BE_SPECIFIED,
         TAG_NAME_OR_ID_MUST_BE_SPECIFIED,
-        SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS
+        SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS,
+        TYPE_MISMATCH
     ));
 
     private static final Set<String> NOT_FOUND = new HashSet<>(Arrays.asList(
             CERTIFICATE_NOT_FOUND,
             TAG_NOT_FOUND,
             UNABLE_TO_SAVE_CERTIFICATE,
-            UNABLE_TO_SAVE_TAG
+            UNABLE_TO_SAVE_TAG,
+            USER_NOT_FOUND,
+            ORDER_NOT_FOUND,
+            UNABLE_TO_SAVE_ORDER,
+            USER_DOESNT_HAVE_THIS_ORDER
     ));
+
+    private static final Set<String> CONFLICT = new HashSet<>(Arrays.asList(
+            NOT_ENOUGH_MONEY,
+            UNABLE_TO_DELETE_ASSOCIATED_TAG
+    ));
+
 
     public HttpStatus errorCodeToStatus(String errorCode) {
         if (BAD_REQUEST.contains(errorCode)) {
@@ -50,6 +69,9 @@ public class ErrorCodeToHttpStatusMapper {
         }
         if (NOT_FOUND.contains(errorCode)) {
             return HttpStatus.NOT_FOUND;
+        }
+        if (CONFLICT.contains(errorCode)) {
+            return HttpStatus.CONFLICT;
         }
         if (CONTENT_MEDIA_TYPE_NOT_SUPPORTED.equals(errorCode)) {
             return HttpStatus.UNSUPPORTED_MEDIA_TYPE;

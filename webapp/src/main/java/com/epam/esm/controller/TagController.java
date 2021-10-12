@@ -1,9 +1,17 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.entities.Tag;
+import com.epam.esm.hateoas.assembler.TagModelAssembler;
+import com.epam.esm.hateoas.model.TagModel;
+import com.epam.esm.hateoas.processor.TagModelProcessor;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,17 +27,24 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/tags")
 @Validated
 public class TagController {
 
-    public static final int DEFAULT_PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE_SIZE = 10;
     private final TagService tagService;
+    private final TagModelProcessor tagModelProcessor;
+    private final TagModelAssembler tagModelAssembler;
 
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, TagModelProcessor tagModelProcessor, TagModelAssembler tagModelAssembler) {
         this.tagService = tagService;
+        this.tagModelProcessor = tagModelProcessor;
+        this.tagModelAssembler = tagModelAssembler;
     }
 
     /**
@@ -37,17 +52,18 @@ public class TagController {
      * @return Tag object from database
      */
     @GetMapping(value = "/{id}")
-    public Tag getById(@PathVariable int id) {
-        return tagService.getById(id);
+    public TagModel getById(@PathVariable int id) {
+        Tag tag = tagService.getById(id);
+        return tagModelAssembler.toModel(tag);
     }
 
     /**
      * @return List of all Tags stored in database.
      */
     @GetMapping
-    public List<Tag> getAll(@RequestParam Optional<Integer> page) {
-        int pageNumber = page.orElse(1);
-        return tagService.getTags(pageNumber, DEFAULT_PAGE_SIZE);
+    public CollectionModel<TagModel> getAll(@RequestParam(defaultValue = "1") int page) {
+        List<Tag> tags = tagService.getTags(page, DEFAULT_PAGE_SIZE);
+        return tagModelAssembler.toCollectionModel(tags);
     }
 
     /**
@@ -57,8 +73,9 @@ public class TagController {
      */
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
-    public Tag addTag(@Valid @RequestBody Tag tag) {
-        return tagService.save(tag);
+    public TagModel addTag(@Valid @RequestBody Tag tag) {
+        Tag saved = tagService.save(tag);
+        return tagModelAssembler.toModel(saved);
     }
 
     /**
