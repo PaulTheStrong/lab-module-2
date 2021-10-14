@@ -17,6 +17,8 @@ import java.util.Optional;
 public class JpaOrderRepository implements OrderRepository {
 
     private static final String FIND_ALL = "SELECT o FROM TheOrder o";
+    private static final String COUNT_ORDERS = "SELECT count(o) FROM TheOrder o";
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -44,5 +46,11 @@ public class JpaOrderRepository implements OrderRepository {
         query.setFirstResult((pageNumber - 1) * pageSize);
         query.setFirstResult(pageSize);
         return query.getResultList();
+    }
+
+    @Override
+    public int countAll() {
+        TypedQuery<Long> query = entityManager.createQuery(COUNT_ORDERS, Long.class);
+        return query.getSingleResult().intValue();
     }
 }

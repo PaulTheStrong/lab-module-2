@@ -2,12 +2,10 @@ package com.epam.esm.hateoas.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,7 +17,7 @@ public class GiftCertificateModel extends RepresentationModel<GiftCertificateMod
     private String name;
     private String description;
     private BigDecimal price;
-    private double duration;
+    private Double duration;
 
     private List<TagModel> tags;
 

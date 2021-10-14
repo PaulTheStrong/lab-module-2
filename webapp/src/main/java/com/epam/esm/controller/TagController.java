@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.data.PageInfo;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.hateoas.assembler.TagModelAssembler;
 import com.epam.esm.hateoas.model.TagModel;
@@ -7,11 +8,7 @@ import com.epam.esm.hateoas.processor.TagModelProcessor;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,17 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/tags")
 @Validated
 public class TagController {
 
-    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final String DEFAULT_PAGE_SIZE = "10";
+    private static final String START_PAGE = "1";
     private final TagService tagService;
     private final TagModelProcessor tagModelProcessor;
     private final TagModelAssembler tagModelAssembler;
@@ -61,9 +55,13 @@ public class TagController {
      * @return List of all Tags stored in database.
      */
     @GetMapping
-    public CollectionModel<TagModel> getAll(@RequestParam(defaultValue = "1") int page) {
-        List<Tag> tags = tagService.getTags(page, DEFAULT_PAGE_SIZE);
-        return tagModelAssembler.toCollectionModel(tags);
+    public CollectionModel<TagModel> getAll(
+            @RequestParam(defaultValue = START_PAGE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
+        List<Tag> tags = tagService.getTags(page, pageSize);
+        PageInfo pageInfo = tagService.tagPageInfo(page, pageSize);
+        CollectionModel<TagModel> collectionModel = tagModelAssembler.toCollectionModel(tags);
+        return tagModelProcessor.process(collectionModel, pageInfo);
     }
 
     /**

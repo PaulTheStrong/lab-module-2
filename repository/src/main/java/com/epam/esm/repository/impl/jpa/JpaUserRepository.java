@@ -18,6 +18,8 @@ import java.util.Optional;
 public class JpaUserRepository implements UserRepository {
 
     private static final String SELECT_ALL_USERS = "SELECT user FROM User user";
+    private static final String FIND_MOST_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ALL_ORDERS = "CALL findMostUsedTagOfUserWithHighestCostOfAllOrders()";
+    private static final String COUNT_USERS = "SELECT count(u) FROM User u";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -44,8 +46,14 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public Optional<Tag> findMostUsedTagOfUserWithHighestCostOfAllOrders() {
-        Query nativeQuery = entityManager.createNativeQuery("CALL findMostUsedTagOfUserWithHighestCostOfAllOrders()", Tag.class);
+        Query nativeQuery = entityManager.createNativeQuery(FIND_MOST_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ALL_ORDERS, Tag.class);
         Tag tag = (Tag) nativeQuery.getSingleResult();
         return Optional.of(tag);
+    }
+
+    @Override
+    public int countAll() {
+        TypedQuery<Long> query = entityManager.createQuery(COUNT_USERS, Long.class);
+        return query.getSingleResult().intValue();
     }
 }

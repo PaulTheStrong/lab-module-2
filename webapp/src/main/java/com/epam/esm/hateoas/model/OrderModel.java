@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-//@Relation(itemRelation = "order", collectionRelation = "orders")
+@Relation(itemRelation = "order", collectionRelation = "orders")
 public class OrderModel extends RepresentationModel<OrderModel> {
 
     private int id;

@@ -1,9 +1,11 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.data.GiftCertificateDto;
+import com.epam.esm.data.PageInfo;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.hateoas.assembler.GiftCertificateModelAssembler;
 import com.epam.esm.hateoas.model.GiftCertificateModel;
+import com.epam.esm.hateoas.processor.GiftCertificateModelProcessor;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.validator.PatchDto;
 import com.epam.esm.validator.SaveDto;
@@ -31,14 +33,17 @@ import java.util.Set;
 @RequestMapping("/certificates")
 public class GiftCertificateController {
 
-    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final String START_PAGE = "1";
+    private static final String DEFAULT_PAGE_SIZE = "10";
     private final GiftCertificateService giftCertificateService;
     private final GiftCertificateModelAssembler giftCertificateModelAssembler;
+    private final GiftCertificateModelProcessor giftCertificateModelProcessor;
 
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateModelAssembler giftCertificateModelAssembler) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateModelAssembler giftCertificateModelAssembler, GiftCertificateModelProcessor giftCertificateModelProcessor) {
         this.giftCertificateService = giftCertificateService;
         this.giftCertificateModelAssembler = giftCertificateModelAssembler;
+        this.giftCertificateModelProcessor = giftCertificateModelProcessor;
     }
 
     /**
@@ -65,17 +70,28 @@ public class GiftCertificateController {
             @RequestParam Optional<Set<String>> tags,
             @RequestParam Optional<List<String>> sortColumns,
             @RequestParam Optional<List<String>> sortTypes,
-            @RequestParam(defaultValue = "1") int page
+            @RequestParam(defaultValue = START_PAGE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize
     ) {
         List<GiftCertificateDto> certificates;
+        PageInfo pageInfo;
+        List<String> emptyList = Collections.emptyList();
         if (!nameOrDescription.isPresent() && !tags.isPresent() && !sortColumns.isPresent() && !sortTypes.isPresent()) {
-            certificates = giftCertificateService.getCertificates(page, DEFAULT_PAGE_SIZE);
+            certificates = giftCertificateService.getCertificates(page, pageSize);
+            pageInfo = giftCertificateService.giftCertificatePageInfo(page, pageSize);
         } else {
-            List<String> emptyList = Collections.emptyList();
-            certificates = giftCertificateService.getWithParameters(nameOrDescription, tags,
-                    sortColumns.orElse(emptyList), sortTypes.orElse(emptyList), page, DEFAULT_PAGE_SIZE);
+            certificates = giftCertificateService.getWithParameters(
+                    nameOrDescription, tags, sortColumns.orElse(emptyList),
+                    sortTypes.orElse(emptyList), page, pageSize);
+            pageInfo = giftCertificateService.giftCertificatePageInfoWithParameters(
+                    nameOrDescription, tags, sortColumns.orElse(emptyList),
+                    sortTypes.orElse(emptyList), page, pageSize
+            );
         }
-        return giftCertificateModelAssembler.toCollectionModel(certificates);
+        CollectionModel<GiftCertificateModel> collectionModel = giftCertificateModelAssembler.toCollectionModel(certificates);
+        return giftCertificateModelProcessor.process(
+                nameOrDescription, tags, sortColumns, sortTypes, collectionModel, pageInfo
+        );
     }
 
     /**

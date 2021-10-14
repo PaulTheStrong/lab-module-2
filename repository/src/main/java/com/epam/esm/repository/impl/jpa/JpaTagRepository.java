@@ -20,6 +20,7 @@ public class JpaTagRepository implements TagRepository {
     private static final String SELECT_BY_NAME = "SELECT tag FROM Tag tag WHERE tag.name = :tagName";
     private static final String DELETE_BY_ID = "DELETE FROM Tag WHERE id =: id";
     private static final String SELECT_ALL = "SELECT tag FROM Tag tag";
+    private static final String COUNT_TAGS = "SELECT count(tag) FROM Tag tag";
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -68,5 +69,11 @@ public class JpaTagRepository implements TagRepository {
         findAllQuery.setFirstResult((pageNumber - 1) * pageSize);
         findAllQuery.setMaxResults(pageSize);
         return findAllQuery.getResultList();
+    }
+
+    @Override
+    public int countAll() {
+        TypedQuery<Long> query = entityManager.createQuery(COUNT_TAGS, Long.class);
+        return query.getSingleResult().intValue();
     }
 }

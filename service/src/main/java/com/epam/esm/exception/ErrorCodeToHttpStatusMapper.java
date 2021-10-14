@@ -2,7 +2,6 @@ package com.epam.esm.exception;
 
 import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

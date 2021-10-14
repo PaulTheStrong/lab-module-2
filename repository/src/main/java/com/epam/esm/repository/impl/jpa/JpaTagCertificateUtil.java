@@ -16,6 +16,7 @@ import java.util.List;
 @Profile("jpa")
 public class JpaTagCertificateUtil implements TagCertificateUtil {
 
+    private static final String COUNT_ASSOCIATED_TAGS = "SELECT count(gc) From Tag tag JOIN tag.certificates gc WHERE tag.id = :id";
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -44,8 +45,8 @@ public class JpaTagCertificateUtil implements TagCertificateUtil {
 
     @Override
     public int countAssociatedCertificates(int tagId) {
-        TypedQuery<Integer> query = entityManager.createQuery("SELECT count(gc) From Tag tag JOIN tag.certificates gc WHERE tag.id = :id", Integer.class);
+        TypedQuery<Long> query = entityManager.createQuery(COUNT_ASSOCIATED_TAGS, Long.class);
         query.setParameter("id", tagId);
-        return query.getSingleResult();
+        return query.getSingleResult().intValue();
     }
 }

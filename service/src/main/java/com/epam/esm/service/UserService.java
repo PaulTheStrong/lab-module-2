@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.data.OrderDto;
-import com.epam.esm.entities.GiftCertificate;
+import com.epam.esm.data.PageInfo;
 import com.epam.esm.entities.Order;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
@@ -14,17 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
-import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
-import static com.epam.esm.exception.ExceptionCodes.ORDER_NOT_FOUND;
-import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
-import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_ORDER;
 import static com.epam.esm.exception.ExceptionCodes.USER_DOESNT_HAVE_THIS_ORDER;
 import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
 
@@ -112,48 +105,21 @@ public class UserService {
         return user.get();
     }
 
-    /**
-     * Performs purchase operation on {@link User} entity:
-     * Creates new {@link Order} and subtracts {@link User}'s balance
-     * by {@link GiftCertificate} price.
-     * @param userId {@link User}'s id in database
-     * @param certificateId {@link GiftCertificate}'s id in database
-     * @return newly create {@link Order}
-     * @throws ServiceException if {@link User} doesn't exist, {@link GiftCertificate} doesn't exist or
-     * {@link User} doesn't have enough money on balance.
-     */
-    public OrderDto purchaseCertificate(int userId, int certificateId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        Optional<GiftCertificate> certificateOptional = giftCertificateRepository.findById(certificateId);
-        if (!certificateOptional.isPresent()) {
-            throw new ServiceException(CERTIFICATE_NOT_FOUND, userId);
-        }
-        GiftCertificate certificate = certificateOptional.get();
-        User user = userOptional.get();
-        BigDecimal balance = user.getBalance();
-        BigDecimal price = certificate.getPrice();
-        if (balance.compareTo(price) < 0) {
-            throw new ServiceException(NOT_ENOUGH_MONEY);
-        }
-        BigDecimal newBalance = balance.subtract(price);
-        user.setBalance(newBalance);
-        LocalDateTime now = LocalDateTime.now();
-        Order order = new Order(price, now, user, certificate);
-        Optional<Order> savedOrder = orderRepository.save(order);
-        if (!savedOrder.isPresent()) {
-            throw new ServiceException(UNABLE_TO_SAVE_ORDER);
-        }
-        return new OrderDto(order);
-    }
-
     public Tag getMostUsedTagOfUserWithHighestCostOfAllOrders() {
         Optional<Tag> tag = userRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders();
         if (!tag.isPresent()) {
             throw new ServiceException("No orders in database");
         }
         return tag.get();
+    }
+
+    public PageInfo userPageInfo(int pageNumber, int pageSize) {
+        int usersCount = userRepository.countAll();
+        return new PageInfo(pageSize, pageNumber, usersCount);
+    }
+
+    public PageInfo userOrdersPageInfo(int userId, int pageNumber, int pageSize) {
+        int userOrdersCount  = userOrderUtil.countUserOrders(userId);
+        return new PageInfo(pageSize, pageNumber, userOrdersCount);
     }
 }

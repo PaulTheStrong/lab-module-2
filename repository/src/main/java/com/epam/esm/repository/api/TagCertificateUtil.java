@@ -1,7 +1,7 @@
 package com.epam.esm.repository.api;
 
-import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.GiftCertificate;
+import com.epam.esm.entities.Tag;
 
 import java.util.List;
 

@@ -16,6 +16,7 @@ import java.util.List;
 public class JpaUserOrderUtil implements UserOrderUtil {
 
     private static final String SELECT_USER_ORDERS_BY_ID = "SELECT orders FROM User user JOIN user.orders orders WHERE user.id =: user_id";
+    private static final String COUNT_USER_ORDERS = "SELECT count(o) FROM TheOrder o where o.user.id = :id";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -33,5 +34,12 @@ public class JpaUserOrderUtil implements UserOrderUtil {
         userOrdersQuery.setFirstResult((pageNumber - 1) * pageSize);
         userOrdersQuery.setMaxResults(pageSize);
         return userOrdersQuery.getResultList();
+    }
+
+    @Override
+    public Integer countUserOrders(int userId) {
+        TypedQuery<Long> query = entityManager.createQuery(COUNT_USER_ORDERS, Long.class);
+        query.setParameter("id", userId);
+        return query.getSingleResult().intValue();
     }
 }

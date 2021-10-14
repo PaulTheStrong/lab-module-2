@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface GiftCertificateRepository
         extends Findable<GiftCertificate>, Deletable<GiftCertificate>,
-        Updatable<GiftCertificate>, Savable<GiftCertificate> {
+        Updatable<GiftCertificate>, Savable<GiftCertificate>, Countable {
 
     /**
      * Updates gift certificate in database
@@ -31,6 +31,10 @@ public interface GiftCertificateRepository
      * @return pageSize entities starting from (pageNumber - 1) * pageSize in pageable format filtered by FilterParameters
      */
     default List<GiftCertificate> findBySpecification(FilterParameters filterParameters, int pageNumber, int pageSize) {
+        throw new UnsupportedOperationException();
+    }
+
+    default int countEntitiesBySpecification(FilterParameters filterParameters) {
         throw new UnsupportedOperationException();
     }
 }

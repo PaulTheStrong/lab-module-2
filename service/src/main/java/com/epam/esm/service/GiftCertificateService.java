@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.data.GiftCertificateDto;
+import com.epam.esm.data.PageInfo;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.exception.ServiceException;
@@ -214,7 +215,21 @@ public class GiftCertificateService {
             List<String> sortColumns,
             List<String> sortTypes,
             int pageNumber,
-            int pageSize) {
+            int pageSize
+    ) {
+        FilterParameters parameters = prepareParameters(nameOrDescription, tags, sortColumns, sortTypes);
+        List<GiftCertificate> foundCertificates = certificateRepository.findBySpecification(parameters, pageNumber, pageSize);
+        return foundCertificates.stream()
+                .map(dtoMapper::giftCertificateToDto)
+                .collect(Collectors.toList());
+    }
+
+    private FilterParameters prepareParameters(
+            Optional<String> nameOrDescription,
+            Optional<Set<String>> tags,
+            List<String> sortColumns,
+            List<String> sortTypes
+    ) {
         FilterParameters.FilterParametersBuilder builder = FilterParameters.builder();
         nameOrDescription.ifPresent(builder::withNameOrDescription);
         tags.ifPresent(set -> set.forEach(builder::withTag));
@@ -231,11 +246,7 @@ public class GiftCertificateService {
             }
             builder.withSort(column, type);
         });
-        FilterParameters parameters = builder.build();
-        List<GiftCertificate> foundCertificates = certificateRepository.findBySpecification(parameters, pageNumber, pageSize);
-        return foundCertificates.stream()
-                .map(dtoMapper::giftCertificateToDto)
-                .collect(Collectors.toList());
+        return builder.build();
     }
 
     /**
@@ -248,5 +259,23 @@ public class GiftCertificateService {
         if (!deleteResult) {
             throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
         }
+    }
+
+    public PageInfo giftCertificatePageInfo(int pageNumber, int pageSize) {
+        int usersCount = certificateRepository.countAll();
+        return new PageInfo(pageSize, pageNumber, usersCount);
+    }
+
+    public PageInfo giftCertificatePageInfoWithParameters(
+            Optional<String> nameOrDescription,
+            Optional<Set<String>> tags,
+            List<String> sortColumns,
+            List<String> sortTypes,
+            int pageNumber,
+            int pageSize
+    ) {
+        FilterParameters filterParameters = prepareParameters(nameOrDescription, tags, sortColumns, sortTypes);
+        int count = certificateRepository.countEntitiesBySpecification(filterParameters);
+        return new PageInfo(pageSize, pageNumber, count);
     }
 }

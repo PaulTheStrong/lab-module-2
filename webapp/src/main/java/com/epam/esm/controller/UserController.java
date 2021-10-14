@@ -1,25 +1,22 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.data.OrderDto;
+import com.epam.esm.data.PageInfo;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Order;
-import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
-import com.epam.esm.exception.ServiceException;
 import com.epam.esm.hateoas.assembler.OrderModelAssembler;
-import com.epam.esm.hateoas.assembler.TagModelAssembler;
 import com.epam.esm.hateoas.assembler.UserModelAssembler;
 import com.epam.esm.hateoas.model.OrderModel;
-import com.epam.esm.hateoas.model.TagModel;
 import com.epam.esm.hateoas.model.UserModel;
 import com.epam.esm.hateoas.processor.OrderModelProcessor;
 import com.epam.esm.hateoas.processor.UserModelProcessor;
+import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,22 +28,23 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final String DEFAULT_PAGE_SIZE = "10";
+    private static final String START_PAGE = "1";
     private final UserService userService;
     private final UserModelAssembler userModelAssembler;
     private final OrderModelAssembler orderModelAssembler;
     private final UserModelProcessor userModelProcessor;
     private final OrderModelProcessor orderModelProcessor;
-    @Autowired
-    private TagModelAssembler tagModelAssembler;
+    private final PurchaseService purchaseService;
 
     @Autowired
-    public UserController(UserService userService, UserModelAssembler userModelAssembler, OrderModelAssembler orderModelAssembler, UserModelProcessor userModelProcessor, OrderModelProcessor orderModelProcessor) {
+    public UserController(UserService userService, UserModelAssembler userModelAssembler, OrderModelAssembler orderModelAssembler, UserModelProcessor userModelProcessor, OrderModelProcessor orderModelProcessor, PurchaseService purchaseService) {
         this.userService = userService;
         this.userModelAssembler = userModelAssembler;
         this.orderModelAssembler = orderModelAssembler;
         this.userModelProcessor = userModelProcessor;
         this.orderModelProcessor = orderModelProcessor;
+        this.purchaseService = purchaseService;
     }
 
     /**
@@ -57,9 +55,13 @@ public class UserController {
      * (pageNumber - 1) * pageSize
      */
     @GetMapping
-    public CollectionModel<UserModel> getAllUsers(@RequestParam(defaultValue = "1") int page) {
-        List<User> users = userService.getUsers(page, DEFAULT_PAGE_SIZE);
-        return userModelAssembler.toCollectionModel(users);
+    public CollectionModel<UserModel> getAllUsers(
+            @RequestParam(defaultValue = START_PAGE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
+        List<User> users = userService.getUsers(page, pageSize);
+        PageInfo pageInfo = userService.userPageInfo(page, pageSize);
+        CollectionModel<UserModel> collectionModel = userModelAssembler.toCollectionModel(users);
+        return userModelProcessor.process(collectionModel, pageInfo);
     }
 
     /**
@@ -84,9 +86,14 @@ public class UserController {
      * (pageNumber - 1) * pageSize
      */
     @GetMapping("/{id}/orders")
-    public CollectionModel<OrderModel> getUserOrders(@RequestParam(defaultValue = "1") Integer page, @PathVariable int id) {
-        List<OrderDto> userOrders = userService.getUserOrders(id, page, DEFAULT_PAGE_SIZE);
-        return orderModelAssembler.toCollectionModel(userOrders);
+    public CollectionModel<OrderModel> getUserOrders(
+            @PathVariable int id,
+            @RequestParam(defaultValue = START_PAGE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size) {
+        List<OrderDto> userOrders = userService.getUserOrders(id, page, size);
+        PageInfo pageInfo = userService.userOrdersPageInfo(id, page, size);
+        CollectionModel<OrderModel> orderModels = orderModelAssembler.toCollectionModel(userOrders);
+        return orderModelProcessor.process(orderModels, pageInfo, id);
     }
 
     /**
@@ -113,15 +120,8 @@ public class UserController {
      */
     @PutMapping("/{userId}/purchase/{certificateId}")
     public OrderModel purchaseCertificate(@PathVariable int userId, @PathVariable int certificateId) {
-        OrderDto order = userService.purchaseCertificate(userId, certificateId);
+        OrderDto order = purchaseService.purchaseCertificate(userId, certificateId);
         OrderModel orderModel = orderModelAssembler.toModel(order);
         return orderModelProcessor.process(orderModel);
-    }
-
-
-    @GetMapping("/mostUsedTagOfUserWithHighestCostOfAllOrders")
-    public TagModel getMostUsedTagOfUserWithHighestCostOfAllOrders() {
-        Tag tag = userService.getMostUsedTagOfUserWithHighestCostOfAllOrders();
-        return tagModelAssembler.toModel(tag);
     }
 }

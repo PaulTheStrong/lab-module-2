@@ -1,12 +1,8 @@
 package com.epam.esm.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.Hibernate;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
@@ -15,7 +11,6 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name="user")

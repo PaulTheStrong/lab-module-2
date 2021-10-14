@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.data.PageInfo;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.exception.ServiceException;
@@ -91,5 +92,10 @@ public class TagService {
      */
     public List<Tag> getTags(int pageNumber, int pageSize) {
         return tagRepository.findAll(pageNumber, pageSize);
+    }
+
+    public PageInfo tagPageInfo(int pageNumber, int pageSize) {
+        int tagCount = tagRepository.countAll();
+        return new PageInfo(pageSize, pageNumber, tagCount);
     }
 }

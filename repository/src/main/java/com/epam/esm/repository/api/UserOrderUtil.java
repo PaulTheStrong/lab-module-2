@@ -1,8 +1,6 @@
 package com.epam.esm.repository.api;
 
-import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Order;
-import com.epam.esm.entities.Tag;
 
 import java.util.List;
 
@@ -27,5 +25,7 @@ public interface UserOrderUtil {
      * starting from (pageNumber - 1) * pageSize.
      */
     List<Order> getUserOrders(int userId, int pageNumber, int pageSize);
+
+    Integer countUserOrders(int userId);
 
 }

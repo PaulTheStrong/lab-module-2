@@ -3,8 +3,7 @@ package com.epam.esm.repository.impl.jpa;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.repository.api.GiftCertificateRepository;
 import com.epam.esm.repository.impl.FilterParameters;
-import com.epam.esm.repository.impl.SortColumn;
-import com.epam.esm.repository.impl.SortType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -12,11 +11,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 @Profile("jpa")
@@ -24,16 +20,16 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
 
     private static final String SELECT_ALL = "SELECT giftCertificate FROM GiftCertificate giftCertificate";
     private static final String DELETE_BY_ID = "DELETE FROM GiftCertificate WHERE id =: id";
-    public static final String FIND_WITH_PARAMS =
-            "SELECT c, t from GiftCertificate c JOIN c.tags t " +
-            "WHERE t.name in ('ok', 'wow') " +
-            "AND (c.name LIKE concat('%', :search, '%') " +
-                "OR c.description LIKE concat('%', :search, '%')) " +
-            "GROUP BY (c.id) HAVING count(c) = 2";
-    public static final String SEARCH_BY_NAME_OR_DESCRIPTION = "(c.name LIKE concat('%', :search, '%') OR c.description LIKE concat('%', :search, '%'))";
+    private static final String COUNT_CERTIFICATES = "SELECT count(gc) FROM GiftCertificate gc";
 
     @PersistenceContext
     private EntityManager entityManager;
+    private final FilterParametersQueryBuilder queryBuilder;
+
+    @Autowired
+    public JpaGiftCertificateRepository(FilterParametersQueryBuilder queryBuilder) {
+        this.queryBuilder = queryBuilder;
+    }
 
     @Override
     public Optional<GiftCertificate> update(GiftCertificate entity) {
@@ -43,13 +39,13 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
 
     @Override
     public List<GiftCertificate> findBySpecification(FilterParameters filterParameters) {
-        TypedQuery<GiftCertificate> query = buildQuery(filterParameters);
+        TypedQuery<GiftCertificate> query = queryBuilder.buildSelectQuery(entityManager, filterParameters);
         return query.getResultList();
     }
 
     @Override
     public List<GiftCertificate> findBySpecification(FilterParameters filterParameters, int pageNumber, int pageSize) {
-        TypedQuery<GiftCertificate> query = buildQuery(filterParameters);
+        TypedQuery<GiftCertificate> query = queryBuilder.buildSelectQuery(entityManager, filterParameters);
         query.setFirstResult((pageNumber - 1) * pageSize);
         query.setMaxResults(pageSize);
         return query.getResultList();
@@ -92,44 +88,15 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
         return selectCertificatesQuery.getResultList();
     }
 
-    private TypedQuery<GiftCertificate> buildQuery(FilterParameters filterParameters) {
-        StringBuilder queryBuilder = new StringBuilder("SELECT c FROM GiftCertificate c ");
-        Set<String> tags = filterParameters.getTags();
-        List<String> tagParameters = new ArrayList<>();
-        if (tags != null && tags.size() > 0) {
-            queryBuilder.append(" JOIN c.tags t WHERE t.name in (");
-            String tagsToAppend = tags.stream().reduce("", (tagsString, tag) -> tagsString.replace(" ", "_") + ":_" + tag + ",");
-            tagsToAppend = tagsToAppend.substring(0, tagsToAppend.length() - 1);
-            queryBuilder.append(tagsToAppend).append(")");
-        }
-        String search = filterParameters.getNameOrDescription();
-        if (search != null) {
-            if (tags == null || tags.size() == 0) {
-                queryBuilder.append(" WHERE ");
-            } else {
-                queryBuilder.append(" AND ");
-            }
-            queryBuilder.append(SEARCH_BY_NAME_OR_DESCRIPTION);
-        }
-        if (tags != null && tags.size() > 0) {
-            queryBuilder.append(" GROUP BY (c.id) HAVING COUNT(c) = ").append(tags.size());
-        }
-        Map<SortColumn, SortType> sorts = filterParameters.getSorts();
-        if (!sorts.isEmpty()) {
-            queryBuilder.append(" ORDER BY ");
-            sorts.entrySet().stream()
-                    .filter(entry -> entry.getValue() != SortType.NONE && entry.getKey() != SortColumn.NONE)
-                    .forEach(entry -> queryBuilder.append("c.").append(entry.getKey()).append(" ").append(entry.getValue()).append(","));
-            int length = queryBuilder.length();
-            queryBuilder.replace(length - 1, length, "");
-        }
-        TypedQuery<GiftCertificate> query = entityManager.createQuery(queryBuilder.toString(), GiftCertificate.class);
-        if (tags != null) {
-            tags.forEach(tag -> query.setParameter("_" + tag.replace(" ", "_"), tag));
-        }
-        if (search != null) {
-            query.setParameter("search", search);
-        }
-        return query;
+    @Override
+    public int countAll() {
+        TypedQuery<Long> query = entityManager.createQuery(COUNT_CERTIFICATES, Long.class);
+        return query.getSingleResult().intValue();
+    }
+
+    @Override
+    public int countEntitiesBySpecification(FilterParameters filterParameters) {
+        TypedQuery<Long> countQuery = queryBuilder.buildCountQuery(entityManager, filterParameters);
+        return countQuery.getSingleResult().intValue();
     }
 }

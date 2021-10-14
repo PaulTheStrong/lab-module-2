@@ -6,7 +6,6 @@ import org.springframework.hateoas.EntityModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Data
 public class OrderDto extends EntityModel<OrderDto> {
