@@ -1,5 +1,6 @@
 package com.epam.esm.service;
 
+import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.repository.api.TagCertificateUtil;
@@ -32,9 +33,9 @@ public class TagService {
     }
 
     /**
-     * @param id - tag object's id stored in database.
-     * @return tag with specified id from database if exists.
-     * Otherwise, throws ServiceException.
+     * @param id {@link Tag} object's id stored in database.
+     * @return {@link Tag} with specified id from database if exists.
+     * @throws ServiceException if {@link Tag} not exists.
      */
     public Tag getById(int id) {
         Optional<Tag> tagOptional = tagRepository.findById(id);
@@ -45,11 +46,17 @@ public class TagService {
     }
 
     /**
-     * Deletes tag from database if it exists and is not associated with any
-     * certificate. Otherwise, throws ServiceException.
-     * @param id - tag object's id to be deleted.
+     * Deletes {@link Tag} from database if it exists and is not associated with any
+     * {@link GiftCertificate}.
+     * @param id - {@link Tag} object's id to be deleted.
+     * @throws ServiceException if {@link Tag} doesn't exists or
+     * associated with {@link GiftCertificate}
      */
     public void delete(int id) {
+        Optional<Tag> tagOptional = tagRepository.findById(id);
+        if (!tagOptional.isPresent()) {
+            throw new ServiceException(TAG_NOT_FOUND, id);
+        }
         if (tagCertificateUtil.countAssociatedCertificates(id) != 0) {
             throw new ServiceException(UNABLE_TO_DELETE_ASSOCIATED_TAG, id);
         }
@@ -59,10 +66,10 @@ public class TagService {
     }
 
     /**
-     * Saves tag object with lowercase name in database.
-     * If error occurs during saving process, ServiceException is thrown.
-     * @param tag - tag object to be saved in database.
+     * Saves {@link Tag} object with lowercase name in database.
+     * @param tag - {@link Tag} object to be saved in database.
      * @return Updated Tag object saved in database with newly assigned id.
+     * @throws ServiceException if error occurs during saving process.
      */
     public Tag save(Tag tag) {
         if (tagRepository.findByName(tag.getName()).isPresent()) {
@@ -78,7 +85,9 @@ public class TagService {
     }
 
     /**
-     * @return All tag objects found in database.
+     * @param pageNumber the number of the page
+     * @param pageSize count of {@link Tag} entities on single page.
+     * @return {@link Tag} objects in pageable format.
      */
     public List<Tag> getTags(int pageNumber, int pageSize) {
         return tagRepository.findAll(pageNumber, pageSize);

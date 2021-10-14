@@ -1,6 +1,8 @@
 package com.epam.esm.repository.impl.jdbc;
 
 import com.epam.esm.repository.impl.FilterParameters;
+import com.epam.esm.repository.impl.SortColumn;
+import com.epam.esm.repository.impl.SortType;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
 import java.sql.Connection;

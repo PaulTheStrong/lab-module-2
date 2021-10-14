@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.data.GiftCertificateDto;
+import com.epam.esm.entities.Tag;
 import com.epam.esm.hateoas.assembler.GiftCertificateModelAssembler;
 import com.epam.esm.hateoas.model.GiftCertificateModel;
 import com.epam.esm.service.GiftCertificateService;
@@ -41,8 +42,8 @@ public class GiftCertificateController {
     }
 
     /**
-     * @param id GiftCertificate object's id stored in database.
-     * @return GiftCertificateDto object with tags associated with requested gift certificate.
+     * @param id {@link com.epam.esm.entities.GiftCertificate} object's id stored in database.
+     * @return {@link GiftCertificateDto} object with tags associated with requested gift certificate.
      */
     @GetMapping(value = "/{id}")
     public GiftCertificateModel getById(@PathVariable int id) {
@@ -51,12 +52,12 @@ public class GiftCertificateController {
     }
 
     /**
-     * @param nameOrDescription - a part of name or description of GiftCertificate
-     * @param tags - tag name associated with certificate
-     * @param sortColumns - column name by which sorting is performed
-     * @param sortTypes - soring order - ascending or descending
-     * @return Filtered list of GiftCertificateDto if any of parameters is presented.
-     * Otherwise, all GiftCertificateDtos are returned.
+     * @param nameOrDescription - a part of name or description of {@link com.epam.esm.entities.GiftCertificate}
+     * @param tags - {@link Tag} name associated with certificate
+     * @param sortColumns - column name by which sorting is performed {@link com.epam.esm.repository.impl.SortColumn}
+     * @param sortTypes - soring order - ascending or descending {@link com.epam.esm.repository.impl.SortType}
+     * @return Filtered {@link List} of {@link GiftCertificateDto} if any of the parameters is presented.
+     * Otherwise, all {@link GiftCertificateDto}s are returned.
      */
     @GetMapping
     public CollectionModel<GiftCertificateModel> getCertificates(
@@ -78,9 +79,10 @@ public class GiftCertificateController {
     }
 
     /**
-     * Saves certificate and associated with it tags in database.
-     * @param giftCertificateDto - data to be saved in database.
-     * @return Saved gift certificate with updated id, dates and tags
+     * Saves {@link com.epam.esm.entities.GiftCertificate} and associated with
+     * it {@link Tag}s in database.
+     * @param giftCertificateDto {@link GiftCertificateDto} to be saved in database.
+     * @return Saved {@link GiftCertificateDto} with updated id, dates and tags
      */
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
@@ -90,10 +92,10 @@ public class GiftCertificateController {
     }
 
     /**
-     * Updates certificate and associated with it tags in database.
-     * @param giftCertificateDto - data to be updated in database.
-     * @param id - id of GiftCertificate in database
-     * @return Updated GiftCertificateDto.
+     * Updates {@link com.epam.esm.entities.GiftCertificate} and associated with it tags in database.
+     * @param giftCertificateDto {@link GiftCertificateDto} to be updated in database.
+     * @param id id of {@link com.epam.esm.entities.GiftCertificate} in database
+     * @return Updated {@link GiftCertificateDto}.
      */
     @PatchMapping(value = "/{id}")
     public GiftCertificateModel updateCertificate(@Validated(PatchDto.class) @RequestBody GiftCertificateDto giftCertificateDto, @PathVariable int id) {
@@ -102,8 +104,8 @@ public class GiftCertificateController {
     }
 
     /**
-     * Deletes certificate with specified id from database.
-     * @param id - GiftCertifcate's id in database to be deleted.
+     * Deletes {@link com.epam.esm.entities.GiftCertificate} with specified id from database.
+     * @param id {@link com.epam.esm.entities.GiftCertificate}'s id in database to be deleted.
      */
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

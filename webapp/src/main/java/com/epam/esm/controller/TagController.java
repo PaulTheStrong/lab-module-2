@@ -67,8 +67,8 @@ public class TagController {
     }
 
     /**
-     * Saves Tag passed in request in database.
-     * @param tag Tag object to be saved in database.
+     * Saves {@link Tag} passed in request in database.
+     * @param tag {@link Tag} object to be saved in database.
      * @return Saved tag object with updated id from database.
      */
     @PostMapping()
@@ -79,7 +79,7 @@ public class TagController {
     }
 
     /**
-     * Deletes tag from database
+     * Deletes {@link Tag} from database
      * @param id - Tag object's id to be deleted
      */
     @DeleteMapping("/{id}")

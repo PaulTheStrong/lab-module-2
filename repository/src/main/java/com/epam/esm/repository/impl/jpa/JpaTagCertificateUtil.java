@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,8 +44,8 @@ public class JpaTagCertificateUtil implements TagCertificateUtil {
 
     @Override
     public int countAssociatedCertificates(int tagId) {
-        Tag tag = entityManager.find(Tag.class, tagId);
-        List<GiftCertificate> certificates = tag.getCertificates();
-        return certificates.size();
+        TypedQuery<Integer> query = entityManager.createQuery("SELECT count(gc) From Tag tag JOIN tag.certificates gc WHERE tag.id = :id", Integer.class);
+        query.setParameter("id", tagId);
+        return query.getSingleResult();
     }
 }

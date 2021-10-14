@@ -1,8 +1,5 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.repository.impl.jdbc.SortColumn;
-import com.epam.esm.repository.impl.jdbc.SortType;
-
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;

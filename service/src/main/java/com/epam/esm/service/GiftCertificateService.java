@@ -8,17 +8,14 @@ import com.epam.esm.repository.api.GiftCertificateRepository;
 import com.epam.esm.repository.api.TagCertificateUtil;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.repository.impl.FilterParameters;
-import com.epam.esm.repository.impl.jdbc.SortColumn;
-import com.epam.esm.repository.impl.jdbc.SortType;
-import com.epam.esm.validator.DtoTag;
+import com.epam.esm.repository.impl.SortColumn;
+import com.epam.esm.repository.impl.SortType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +29,9 @@ import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_E
 import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_CERTIFICATE;
 
+/**
+ * Provides functionality for working with {@link GiftCertificate}
+ */
 @Service
 @Transactional
 public class GiftCertificateService {
@@ -48,11 +48,12 @@ public class GiftCertificateService {
     }
 
     /**
-     * Sets createDate and lastUpdateDate for gift certificate, saves it in repository,
-     * assigns new id. Then updates tags - creates new if needed or find old.
+     * Sets {@link LocalDateTime} createDate and {@link LocalDateTime} lastUpdateDate
+     * for {@link GiftCertificate}, saves it in {@link GiftCertificateRepository},
+     * assigns new id. Then updates {@link Tag} entities - creates new if needed or find old.
      *
-     * @param giftCertificateDto - data to be saved
-     * @return updated gift certificate dto with id, tags
+     * @param giftCertificateDto {@link GiftCertificate} to be saved
+     * @return updated {@link GiftCertificateDto} with setted id and tags
      */
     public GiftCertificateDto addCertificate(GiftCertificateDto giftCertificateDto) {
         GiftCertificate certificate = dtoMapper.dtoToGiftCertificate(giftCertificateDto);
@@ -65,17 +66,17 @@ public class GiftCertificateService {
         getTagNamesByIdOrSaveInRepository(new HashSet<>(tags));
         Optional<GiftCertificate> save = certificateRepository.save(certificate);
         if (!save.isPresent()) {
-            throw new ServiceException("Unable to save certificate");
+            throw new ServiceException(UNABLE_TO_SAVE_CERTIFICATE);
         }
         return dtoMapper.giftCertificateToDto(save.get());
     }
 
     /**
-     * Updates GiftCertificate in database and tags, passed in dto
-     * @param certificateDto - Dto contains data to be updated
-     * @param id identifies gift certificate record in database
-     * @return updated dto if certificate with given dto exists. Otherwise, throws
-     * service exception.
+     * Updates {@link GiftCertificate} in database and tags, passed in dto
+     * @param certificateDto {@link GiftCertificateDto} that contains data to be updated
+     * @param id identifies {@link GiftCertificate} record in database
+     * @return updated {@link GiftCertificateDto} if certificate with given dto exists.
+     * Otherwise, throws {@link ServiceException}.
      */
     public GiftCertificateDto updateCertificate(GiftCertificateDto certificateDto, int id) {
         Optional<GiftCertificate> certificateOpt = certificateRepository.findById(id);
@@ -170,9 +171,9 @@ public class GiftCertificateService {
     }
 
     /**
-     * @param id - gift certificate id in repository
-     * @return gift certificate dto with tags, associated with it.
-     * If not found throws Service Exception
+     * @param id {@link GiftCertificate} id in repository
+     * @return {@link GiftCertificateDto} with {@link Tag}s, associated with it.
+     * @throws ServiceException if not found.
      */
     public GiftCertificateDto getById(int id) {
         Optional<GiftCertificate> certificate = certificateRepository.findById(id);
@@ -183,7 +184,10 @@ public class GiftCertificateService {
     }
 
     /**
-     * @return all GiftCertificateDto found in database with associated tags.
+     * @param pageNumber the number of page
+     * @param pageSize size of the single page
+     * @return pageSize {@link GiftCertificateDto} entities found in database with
+     * associated {@link Tag}s starting from (pageNumber - 1) * pageSize.
      */
     public List<GiftCertificateDto> getCertificates(int pageNumber, int pageSize) {
         return certificateRepository.findAll(pageNumber, pageSize)
@@ -193,12 +197,16 @@ public class GiftCertificateService {
     }
 
     /**
-     * Builds a query with given parameters and gets List of GiftCertificateDto
-     * that satisfies these parameters.
-     * @param nameOrDescription - a part of name or description
-     * @param tags - tag names that certificate should contain
-     * @param sortColumns - columns by which sorting should be performed {@link SortColumn}
-     * @param sortTypes - Ascending or descending order {@link SortType}
+     * Builds a query with given parameters and gets {@link List} of pageSize
+     * of {@link GiftCertificateDto} that satisfies these parameters starting from
+     * (pageNumber - 1) * pageSize.
+     * @param nameOrDescription a part of name or description
+     * @param tags {@link Tag} names that certificate should contain
+     * @param sortColumns columns by which sorting should be performed {@link SortColumn}
+     * @param sortTypes Ascending or descending order {@link SortType}
+     * @param pageNumber the number of the page
+     * @param pageSize size of the single page.
+     * @throws ServiceException if wrong parameters has benn passed
      */
     public List<GiftCertificateDto> getWithParameters(
             Optional<String> nameOrDescription,
@@ -231,9 +239,9 @@ public class GiftCertificateService {
     }
 
     /**
-     * Deletes certificate with given id from database. If certificate not found
-     * throws ServiceException.
+     * Deletes {@link GiftCertificate} with given id from database
      * @param id of certificate to be deleted.
+     * @throws ServiceException if no {@link GiftCertificate} in database.
      */
     public void deleteCertificate(int id) {
         boolean deleteResult = certificateRepository.delete(id);

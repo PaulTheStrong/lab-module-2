@@ -43,10 +43,9 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public Tag getMostUsedTagOfUserWithHighestCostOfAllOrders() {
-        TypedQuery<Tag> query = entityManager.createQuery(
-                "SELECT u.id, sum(o.totalPrice) FROM TheOrder o JOIN o.user u GROUP BY u.id",
-                Tag.class);
-        return query.getSingleResult();
+    public Optional<Tag> findMostUsedTagOfUserWithHighestCostOfAllOrders() {
+        Query nativeQuery = entityManager.createNativeQuery("CALL findMostUsedTagOfUserWithHighestCostOfAllOrders()", Tag.class);
+        Tag tag = (Tag) nativeQuery.getSingleResult();
+        return Optional.of(tag);
     }
 }

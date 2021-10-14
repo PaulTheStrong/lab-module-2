@@ -3,12 +3,13 @@ package com.epam.esm.service;
 import com.epam.esm.data.GiftCertificateDto;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Component
 public class DtoMapper {
 
     public GiftCertificateDto giftCertificateToDto(GiftCertificate certificate) {

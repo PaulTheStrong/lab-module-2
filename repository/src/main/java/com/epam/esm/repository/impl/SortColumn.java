@@ -1,7 +1,10 @@
-package com.epam.esm.repository.impl.jdbc;
+package com.epam.esm.repository.impl;
 
 import java.util.Locale;
 
+/**
+ * Represents names of sorting columns.
+ */
 public enum SortColumn {
     DATE("createDate"), NAME("name"), NONE("");
     private final String column;

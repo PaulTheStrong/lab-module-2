@@ -3,8 +3,8 @@ package com.epam.esm.repository.impl.jpa;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.repository.api.GiftCertificateRepository;
 import com.epam.esm.repository.impl.FilterParameters;
-import com.epam.esm.repository.impl.jdbc.SortColumn;
-import com.epam.esm.repository.impl.jdbc.SortType;
+import com.epam.esm.repository.impl.SortColumn;
+import com.epam.esm.repository.impl.SortType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 

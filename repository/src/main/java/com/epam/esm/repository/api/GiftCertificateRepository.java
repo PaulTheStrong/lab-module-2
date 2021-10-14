@@ -26,6 +26,10 @@ public interface GiftCertificateRepository
      */
     List<GiftCertificate> findBySpecification(FilterParameters filterParameters);
 
+    /**
+     * See {@link #findBySpecification(FilterParameters filterParameters)}
+     * @return pageSize entities starting from (pageNumber - 1) * pageSize in pageable format filtered by FilterParameters
+     */
     default List<GiftCertificate> findBySpecification(FilterParameters filterParameters, int pageNumber, int pageSize) {
         throw new UnsupportedOperationException();
     }
