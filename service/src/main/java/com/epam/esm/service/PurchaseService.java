@@ -70,7 +70,7 @@ public class PurchaseService {
         if (!savedOrder.isPresent()) {
             throw new ServiceException(UNABLE_TO_SAVE_ORDER);
         }
-        return new OrderDto(order);
+        return new OrderDto(savedOrder.get());
     }
 
 }

@@ -5,18 +5,20 @@ public class PageInfo {
     private final int pageSize;
     private final int currentPage;
     private final int entityCount;
+    private final int lastPage;
 
     public PageInfo(int pageSize, int currentPage, int entityCount) {
         this.pageSize = Math.max(pageSize, 1);
-        this.currentPage = Math.max(currentPage, 1);
         this.entityCount = Math.max(entityCount, 0);
+        this.lastPage = (entityCount + pageSize - 1) / pageSize;
+        this.currentPage = Math.max(1, Math.min(currentPage, lastPage));
     }
 
     public boolean hasNext() {
-        return (entityCount + pageSize - 1) / pageSize != currentPage;
+        return lastPage > currentPage;
     }
 
-    public PageInfo next() {
+    private PageInfo next() {
         return new PageInfo(pageSize, currentPage + 1, entityCount);
     }
 
@@ -24,14 +26,14 @@ public class PageInfo {
         if (hasNext()) {
             return next();
         }
-        return this;
+        return new PageInfo(pageSize, lastPage, entityCount);
     }
 
     public boolean hasPrevious() {
         return currentPage != 1;
     }
 
-    public PageInfo prev() {
+    private PageInfo prev() {
         return new PageInfo(pageSize, currentPage - 1, entityCount);
     }
 
@@ -47,11 +49,7 @@ public class PageInfo {
     }
 
     public PageInfo last() {
-        return new PageInfo(pageSize, (entityCount + pageSize - 1) / pageSize, entityCount);
-    }
-
-    public PageInfo withPage(int page) {
-        return new PageInfo(pageSize, page, entityCount);
+        return new PageInfo(pageSize, lastPage, entityCount);
     }
 
     public int getPageSize() {
