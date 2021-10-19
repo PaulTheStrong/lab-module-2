@@ -11,7 +11,6 @@ import javax.sql.DataSource;
 @Configuration
 @Profile("dev")
 public class DevRepositoryConfig {
-
     @Bean
     public DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()

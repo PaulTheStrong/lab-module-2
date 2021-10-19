@@ -4,11 +4,15 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +30,12 @@ public class User extends Identifiable{
     @NotNull
     private BigDecimal balance;
 
+    @Column(name="update_date")
+    private LocalDateTime updateDate;
+
+    @Column(name = "is_active")
+    private boolean isActive;
+
     @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     private List<Order> orders;
 
@@ -42,6 +52,23 @@ public class User extends Identifiable{
         this.username = username;
         this.balance = balance;
         this.orders = orders;
+    }
+
+    @PrePersist
+    private void onPrePersist() {
+        isActive = true;
+        updateDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void onPreUpdate() {
+        updateDate = LocalDateTime.now();
+    }
+
+    @PreRemove
+    private void onPreRemove() {
+        updateDate = LocalDateTime.now();
+        isActive = false;
     }
 
     public User(String username, BigDecimal balance) {
@@ -75,5 +102,21 @@ public class User extends Identifiable{
     public void addOrder(Order order) {
         orders.add(order);
         order.setUser(this);
+    }
+
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(LocalDateTime updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

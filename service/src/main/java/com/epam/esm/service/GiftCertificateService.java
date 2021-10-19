@@ -59,10 +59,6 @@ public class GiftCertificateService {
     public GiftCertificateDto addCertificate(GiftCertificateDto giftCertificateDto) {
         GiftCertificate certificate = dtoMapper.dtoToGiftCertificate(giftCertificateDto);
 
-        LocalDateTime now = LocalDateTime.now();
-        certificate.setCreateDate(now);
-        certificate.setLastUpdateDate(now);
-
         List<Tag> tags = certificate.getTags();
         getTagNamesByIdOrSaveInRepository(new HashSet<>(tags));
         Optional<GiftCertificate> save = certificateRepository.save(certificate);
@@ -108,8 +104,6 @@ public class GiftCertificateService {
         if (newTags != null) {
             updateTags(oldEntity, oldEntity.getTags(), newTags);
         }
-
-        oldEntity.setLastUpdateDate(LocalDateTime.now());
         return dtoMapper.giftCertificateToDto(oldEntity);
     }
 

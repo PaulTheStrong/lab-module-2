@@ -4,6 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -28,6 +30,9 @@ public class Order extends Identifiable {
     @JoinColumn(name="certificate_id")
     private GiftCertificate giftCertificate;
 
+    @Column(name = "is_available")
+    private boolean isAvailable;
+
     public Order() {}
 
     public Order(Integer id, BigDecimal totalPrice, LocalDateTime timestamp, User user, GiftCertificate giftCertificate) {
@@ -44,6 +49,17 @@ public class Order extends Identifiable {
         this.user = user;
         this.giftCertificate = giftCertificate;
     }
+
+    @PrePersist
+    private void onPrePersist() {
+        isAvailable = true;
+    }
+
+    @PreRemove
+    private void onPreRemove() {
+        isAvailable = false;
+    }
+
 
     public BigDecimal getTotalPrice() {
         return totalPrice;
@@ -75,5 +91,13 @@ public class Order extends Identifiable {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
     }
 }

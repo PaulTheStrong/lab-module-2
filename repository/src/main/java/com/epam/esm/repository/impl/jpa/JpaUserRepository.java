@@ -17,9 +17,21 @@ import java.util.Optional;
 @Profile("jpa")
 public class JpaUserRepository implements UserRepository {
 
-    private static final String SELECT_ALL_USERS = "SELECT user FROM User user";
-    private static final String FIND_MOST_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ALL_ORDERS = "CALL findMostUsedTagOfUserWithHighestCostOfAllOrders()";
-    private static final String COUNT_USERS = "SELECT count(u) FROM User u";
+    private static final String SELECT_ALL_USERS = "SELECT user FROM User user WHERE user.isActive=true";
+    private static final String FIND_MOST_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ALL_ORDERS =
+            "SELECT t.id, t.name, t.is_available FROM `order` o\n" +
+            "    JOIN gift_certificate gc on o.certificate_id = gc.id\n" +
+            "     JOIN tag_certificate tc on gc.id = tc.certificate_id\n" +
+            "     JOIN tag t on tc.tag_id = t.id\n" +
+            "WHERE o.user_id = (SELECT user_id id\n" +
+            "       FROM `order`\n" +
+            "       GROUP BY user_id\n" +
+            "       ORDER BY sum(total_price) DESC\n" +
+            "       LIMIT 1)\n" +
+            "GROUP BY (t.id)\n" +
+            "ORDER BY COUNT(t.id) DESC\n" +
+            "    LIMIT 1";
+    private static final String COUNT_USERS = "SELECT count(u) FROM User u WHERE u.isActive = true";
 
     @PersistenceContext
     private EntityManager entityManager;

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -18,9 +19,9 @@ import java.util.Optional;
 @Profile("jpa")
 public class JpaGiftCertificateRepository implements GiftCertificateRepository {
 
-    private static final String SELECT_ALL = "SELECT giftCertificate FROM GiftCertificate giftCertificate";
-    private static final String DELETE_BY_ID = "DELETE FROM GiftCertificate WHERE id =: id";
-    private static final String COUNT_CERTIFICATES = "SELECT count(gc) FROM GiftCertificate gc";
+    private static final String SELECT_ALL = "SELECT gc FROM GiftCertificate gc WHERE gc.isAvailable=true";
+    private static final String DELETE_BY_ID = "UPDATE GiftCertificate gc SET gc.isAvailable = false WHERE gc.id =: id AND gc.isAvailable = true";
+    private static final String COUNT_CERTIFICATES = "SELECT count(gc) FROM GiftCertificate gc WHERE gc.isAvailable=true";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -61,6 +62,9 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
     @Override
     public Optional<GiftCertificate> findById(int id) {
         GiftCertificate certificateById = entityManager.find(GiftCertificate.class, id);
+        if (certificateById != null && !certificateById.isAvailable()) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(certificateById);
     }
 
@@ -97,6 +101,12 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
     @Override
     public int countEntitiesBySpecification(FilterParameters filterParameters) {
         TypedQuery<Long> countQuery = queryBuilder.buildCountQuery(entityManager, filterParameters);
-        return countQuery.getSingleResult().intValue();
+        long result;
+        try {
+            result = countQuery.getSingleResult();
+        } catch (NoResultException e) {
+            result = 0;
+        }
+        return (int) result;
     }
 }

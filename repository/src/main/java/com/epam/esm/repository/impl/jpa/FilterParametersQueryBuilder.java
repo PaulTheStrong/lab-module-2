@@ -62,6 +62,13 @@ class FilterParametersQueryBuilder {
             }
             queryBuilder.append(SEARCH_BY_NAME_OR_DESCRIPTION);
         }
+
+        if (search == null && (tags == null || tags.size() == 0)) {
+            queryBuilder.append(" WHERE c.isAvailable = true ");
+        } else {
+            queryBuilder.append(" AND c.isAvailable = true ");
+        }
+
         if (tags != null && tags.size() > 0) {
             queryBuilder.append(GROUP_BY).append(tags.size());
         }

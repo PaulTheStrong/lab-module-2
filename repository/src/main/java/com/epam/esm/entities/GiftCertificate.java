@@ -1,5 +1,6 @@
 package com.epam.esm.entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
@@ -8,6 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name="gift_certificate")
+@EqualsAndHashCode(callSuper = true)
 public class GiftCertificate extends Identifiable {
 
     @Column(name="name")
@@ -36,6 +41,10 @@ public class GiftCertificate extends Identifiable {
     @Column(name="last_update_date")
     private LocalDateTime lastUpdateDate;
 
+    @Column(name= "is_available")
+    private boolean isAvailable;
+
+    @EqualsAndHashCode.Exclude
     @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "tag_certificate",
@@ -74,6 +83,25 @@ public class GiftCertificate extends Identifiable {
         this.lastUpdateDate = lastUpdateDate;
         this.tags = tags;
     }
+
+    @PrePersist
+    private void onPrePersist() {
+        isAvailable = true;
+        lastUpdateDate = LocalDateTime.now();
+        createDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void onPreUpdate() {
+        lastUpdateDate = LocalDateTime.now();
+    }
+
+    @PreRemove
+    private void onPreRemove() {
+        lastUpdateDate = LocalDateTime.now();
+        isAvailable = false;
+    }
+
 
     public String getName() {
         return name;
@@ -139,5 +167,13 @@ public class GiftCertificate extends Identifiable {
     public void removeTag(Tag tag) {
         tags.remove(tag);
         tag.getCertificates().remove(this);
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
     }
 }

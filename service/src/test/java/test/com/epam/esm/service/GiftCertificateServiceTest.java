@@ -91,9 +91,6 @@ public class GiftCertificateServiceTest {
         when(mockCertificateRepository.findById(0)).thenReturn(Optional.of(certificate1));
         when(mockCertificateRepository.findById(1)).thenReturn(Optional.of(certificate2));
 
-        when(mockTagCertificateUtil.findTagsByCertificateId(0)).thenReturn(TAGS_FOR_CERTIFICATE_1);
-        when(mockTagCertificateUtil.findTagsByCertificateId(1)).thenReturn(TAGS_FOR_CERTIFICATE_2);
-
         when(mockCertificateRepository.findAll(1, 10)).thenReturn(Arrays.asList(TEST_GIFT_CERTIFICATES));
 
         when(mockCertificateRepository.findById(certificate1.getId())).thenReturn(Optional.of(certificate1));
@@ -191,7 +188,6 @@ public class GiftCertificateServiceTest {
         GiftCertificateDto giftCertificateDto = new GiftCertificateDto(1, "b", "b", BigDecimal.ONE, 2.0, null, null, newTags);
 
         when(mockCertificateRepository.findById(1)).thenReturn(Optional.of(oldCertificate));
-        when(mockTagCertificateUtil.findTagsByCertificateId(1)).thenReturn(oldTags);
         when(mockTagRepository.findById(1)).thenReturn(Optional.of(TEST_TAGS[0]));
         when(mockTagRepository.findById(2)).thenReturn(Optional.of(TEST_TAGS[1]));
         when(mockTagRepository.findByName(tagByName.getName())).thenReturn(Optional.of(tagByName));

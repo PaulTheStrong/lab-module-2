@@ -17,22 +17,28 @@ import java.util.Optional;
 @Profile("jpa")
 public class JpaTagRepository implements TagRepository {
 
-    private static final String SELECT_BY_NAME = "SELECT tag FROM Tag tag WHERE tag.name = :tagName";
-    private static final String DELETE_BY_ID = "DELETE FROM Tag WHERE id =: id";
-    private static final String SELECT_ALL = "SELECT tag FROM Tag tag";
-    private static final String COUNT_TAGS = "SELECT count(tag) FROM Tag tag";
+    private static final String SELECT_BY_NAME = "SELECT tag FROM Tag tag WHERE tag.name = :tagName AND tag.isAvailable=true";
+    private static final String DELETE_BY_ID = "UPDATE Tag tag SET tag.isAvailable=false WHERE id =: id AND tag.isAvailable=true";
+    private static final String SELECT_ALL = "SELECT tag FROM Tag tag WHERE tag.isAvailable = true";
+    private static final String COUNT_TAGS = "SELECT count(tag) FROM Tag tag WHERE tag.isAvailable = true";
+
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
     public Optional<Tag> save(Tag entity) {
-        Tag merged = entityManager.merge(entity);
-        return Optional.of(merged);
+        String name = entity.getName();
+        Optional<Tag> byName = findByName(name);
+        Tag result = byName.orElseGet(() -> entityManager.merge(entity));
+        return Optional.of(result);
     }
 
     @Override
     public Optional<Tag> findById(int id) {
         Tag tag = entityManager.find(Tag.class, id);
+        if (tag != null && !tag.isAvailable()) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(tag);
     }
 
