@@ -23,10 +23,10 @@ public class UserModelProcessor implements RepresentationModelProcessor<UserMode
 
     @Override
     public CollectionModel<UserModel> process(CollectionModel<UserModel> collectionModel, PageInfo currentPage) {
-        PageInfo first = currentPage.first();
-        PageInfo last = currentPage.last();
-        PageInfo next = currentPage.nextOrLast();
-        PageInfo prev = currentPage.prevOrFirst();
+        PageInfo first = currentPage.getFirst();
+        PageInfo last = currentPage.getLast();
+        PageInfo next = currentPage.getNextOrLast();
+        PageInfo prev = currentPage.getPreviousOrFirst();
         int pageSize = currentPage.getPageSize();
         Link linkFirst = linkTo(getAllUsersMethod(first, pageSize)).withRel("first");
         Link linkLast = linkTo(getAllUsersMethod(last, pageSize)).withRel("last");

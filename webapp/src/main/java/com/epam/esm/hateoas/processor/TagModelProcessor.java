@@ -21,10 +21,10 @@ public class TagModelProcessor implements RepresentationModelProcessor<TagModel>
 
     @Override
     public CollectionModel<TagModel> process(CollectionModel<TagModel> collectionModel, PageInfo currentPage) {
-        PageInfo first = currentPage.first();
-        PageInfo last = currentPage.last();
-        PageInfo next = currentPage.nextOrLast();
-        PageInfo prev = currentPage.prevOrFirst();
+        PageInfo first = currentPage.getFirst();
+        PageInfo last = currentPage.getLast();
+        PageInfo next = currentPage.getNextOrLast();
+        PageInfo prev = currentPage.getPreviousOrFirst();
         int pageSize = currentPage.getPageSize();
         Link linkFirst = linkTo(getTagMethod(first, pageSize)).withRel("first");
         Link linkLast = linkTo(getTagMethod(last, pageSize)).withRel("last");

@@ -26,10 +26,10 @@ public class GiftCertificateModelProcessor implements RepresentationModelProcess
             CollectionModel<GiftCertificateModel> collectionModel,
             PageInfo currentPage
     ) {
-        PageInfo first = currentPage.first();
-        PageInfo last = currentPage.last();
-        PageInfo next = currentPage.nextOrLast();
-        PageInfo prev = currentPage.prevOrFirst();
+        PageInfo first = currentPage.getFirst();
+        PageInfo last = currentPage.getLast();
+        PageInfo next = currentPage.getNextOrLast();
+        PageInfo prev = currentPage.getPreviousOrFirst();
         Link linkFirst = linkTo(getCertificates(nameOrDescription, tags, sortColumns, sortTypes, first)).withRel("first");
         Link linkLast = linkTo(getCertificates(nameOrDescription, tags, sortColumns, sortTypes, last)).withRel("last");
         Link linkPrev = linkTo(getCertificates(nameOrDescription, tags, sortColumns, sortTypes, prev)).withRel("prev");

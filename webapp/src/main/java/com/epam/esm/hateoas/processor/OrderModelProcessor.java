@@ -29,10 +29,10 @@ public class OrderModelProcessor implements RepresentationModelProcessor<OrderMo
 
     @Override
     public CollectionModel<OrderModel> process(CollectionModel<OrderModel> collectionModel, PageInfo currentPage, int userId) {
-        PageInfo first = currentPage.first();
-        PageInfo last = currentPage.last();
-        PageInfo next = currentPage.nextOrLast();
-        PageInfo prev = currentPage.prevOrFirst();
+        PageInfo first = currentPage.getFirst();
+        PageInfo last = currentPage.getLast();
+        PageInfo next = currentPage.getNextOrLast();
+        PageInfo prev = currentPage.getPreviousOrFirst();
         int pageSize = currentPage.getPageSize();
         Link linkFirst = linkTo(userOrdersMethod(userId, first, pageSize)).withRel("first");
         Link linkLast = linkTo(userOrdersMethod(userId, last, pageSize)).withRel("last");

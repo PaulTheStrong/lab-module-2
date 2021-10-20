@@ -18,13 +18,13 @@ public class PageInfo {
         return lastPage > currentPage;
     }
 
-    private PageInfo next() {
+    private PageInfo getNext() {
         return new PageInfo(pageSize, currentPage + 1, entityCount);
     }
 
-    public PageInfo nextOrLast() {
+    public PageInfo getNextOrLast() {
         if (hasNext()) {
-            return next();
+            return getNext();
         }
         return new PageInfo(pageSize, lastPage, entityCount);
     }
@@ -33,22 +33,22 @@ public class PageInfo {
         return currentPage != 1;
     }
 
-    private PageInfo prev() {
+    private PageInfo getPrevious() {
         return new PageInfo(pageSize, currentPage - 1, entityCount);
     }
 
-    public PageInfo prevOrFirst() {
+    public PageInfo getPreviousOrFirst() {
         if (hasPrevious()) {
-            return prev();
+            return getPrevious();
         }
         return this;
     }
 
-    public PageInfo first() {
+    public PageInfo getFirst() {
         return new PageInfo(pageSize, 1, entityCount);
     }
 
-    public PageInfo last() {
+    public PageInfo getLast() {
         return new PageInfo(pageSize, lastPage, entityCount);
     }
 
