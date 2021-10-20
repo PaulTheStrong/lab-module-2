@@ -20,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name="gift_certificate")
-@EqualsAndHashCode(callSuper = true)
 public class GiftCertificate extends Identifiable {
 
     @Column(name="name")
@@ -74,30 +73,20 @@ public class GiftCertificate extends Identifiable {
         this.tags = tags;
     }
 
-    public GiftCertificate(String name, String description, BigDecimal price, Double duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, List<Tag> tags) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.duration = duration;
-        this.createDate = createDate;
-        this.lastUpdateDate = lastUpdateDate;
-        this.tags = tags;
-    }
-
     @PrePersist
-    private void onPrePersist() {
+    private void prePersist() {
         isAvailable = true;
         lastUpdateDate = LocalDateTime.now();
         createDate = LocalDateTime.now();
     }
 
     @PreUpdate
-    private void onPreUpdate() {
+    private void preUpdate() {
         lastUpdateDate = LocalDateTime.now();
     }
 
     @PreRemove
-    private void onPreRemove() {
+    private void preRemove() {
         lastUpdateDate = LocalDateTime.now();
         isAvailable = false;
     }

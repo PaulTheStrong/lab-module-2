@@ -65,7 +65,7 @@ public class PurchaseService {
         BigDecimal newBalance = balance.subtract(price);
         user.setBalance(newBalance);
         LocalDateTime now = LocalDateTime.now();
-        Order order = new Order(price, now, user, certificate);
+        Order order = new Order(null, price, now, user, certificate);
         Optional<Order> savedOrder = orderRepository.save(order);
         if (!savedOrder.isPresent()) {
             throw new ServiceException(UNABLE_TO_SAVE_ORDER);

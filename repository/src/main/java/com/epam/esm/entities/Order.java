@@ -1,5 +1,7 @@
 package com.epam.esm.entities;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 
 @Table(name = "`order`")
 @Entity(name="TheOrder")
+@NoArgsConstructor
 public class Order extends Identifiable {
 
     @Column(name="total_price")
@@ -33,8 +36,6 @@ public class Order extends Identifiable {
     @Column(name = "is_available")
     private boolean isAvailable;
 
-    public Order() {}
-
     public Order(Integer id, BigDecimal totalPrice, LocalDateTime timestamp, User user, GiftCertificate giftCertificate) {
         super(id);
         this.totalPrice = totalPrice;
@@ -43,20 +44,13 @@ public class Order extends Identifiable {
         this.giftCertificate = giftCertificate;
     }
 
-    public Order(BigDecimal totalPrice, LocalDateTime timestamp, User user, GiftCertificate giftCertificate) {
-        this.totalPrice = totalPrice;
-        this.timestamp = timestamp;
-        this.user = user;
-        this.giftCertificate = giftCertificate;
-    }
-
     @PrePersist
-    private void onPrePersist() {
+    private void prePersist() {
         isAvailable = true;
     }
 
     @PreRemove
-    private void onPreRemove() {
+    private void preRemove() {
         isAvailable = false;
     }
 

@@ -1,5 +1,7 @@
 package com.epam.esm.entities;
 
+import lombok.NoArgsConstructor;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +20,7 @@ import java.util.List;
 
 @Entity
 @Table(name="user")
+@NoArgsConstructor
 public class User extends Identifiable{
 
     @Column(name="username")
@@ -39,8 +42,6 @@ public class User extends Identifiable{
     @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     private List<Order> orders;
 
-    public User() {}
-
     public User(int id, String username, BigDecimal balance, List<Order> orders) {
         super(id);
         this.username = username;
@@ -48,31 +49,21 @@ public class User extends Identifiable{
         this.orders = orders;
     }
 
-    public User(String username, BigDecimal balance, List<Order> orders) {
-        this.username = username;
-        this.balance = balance;
-        this.orders = orders;
-    }
-
     @PrePersist
-    private void onPrePersist() {
+    private void prePersist() {
         isActive = true;
         updateDate = LocalDateTime.now();
     }
 
     @PreUpdate
-    private void onPreUpdate() {
+    private void preUpdate() {
         updateDate = LocalDateTime.now();
     }
 
     @PreRemove
-    private void onPreRemove() {
+    private void preRemove() {
         updateDate = LocalDateTime.now();
         isActive = false;
-    }
-
-    public User(String username, BigDecimal balance) {
-        this(username, balance, new ArrayList<>());
     }
 
     public String getUsername() {

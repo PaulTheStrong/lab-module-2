@@ -36,24 +36,13 @@ public class Tag extends Identifiable {
         this.certificates = new ArrayList<>();
     }
 
-    public Tag(Integer id, String name, List<GiftCertificate> certificates) {
-        super(id);
-        this.name = name;
-        this.certificates = certificates;
-    }
-
-    public Tag(String name, List<GiftCertificate> certificates) {
-        this.name = name;
-        this.certificates = certificates;
-    }
-
     @PrePersist
-    private void onPrePersist() {
+    private void prePersist() {
         isAvailable = true;
     }
 
     @PreRemove
-    private void onPreRemove() {
+    private void preRemove() {
         isAvailable = false;
     }
 
