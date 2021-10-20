@@ -15,7 +15,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("com.epam.esm.repository.impl.jpa")
+@ComponentScan("com.epam.esm.repository.impl.jdbc")
 @Profile("jdbc")
 public class JdbcRepositoryConfig {
     @Bean
