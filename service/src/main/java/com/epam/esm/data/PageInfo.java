@@ -2,16 +2,19 @@ package com.epam.esm.data;
 
 public class PageInfo {
 
+    private static final int FIRST_PAGE = 1;
+    private static final int ZERO_COUNT = 0;
     private final int pageSize;
     private final int currentPage;
     private final int entityCount;
     private final int lastPage;
 
     public PageInfo(int pageSize, int currentPage, int entityCount) {
-        this.pageSize = Math.max(pageSize, 1);
-        this.entityCount = Math.max(entityCount, 0);
+        this.pageSize = Math.max(pageSize, FIRST_PAGE);
+        this.entityCount = Math.max(entityCount, ZERO_COUNT);
         this.lastPage = (entityCount + pageSize - 1) / pageSize;
-        this.currentPage = Math.max(1, Math.min(currentPage, lastPage));
+        int lastOrGivenPage = Math.min(currentPage, lastPage);
+        this.currentPage = Math.max(FIRST_PAGE, lastOrGivenPage);
     }
 
     public boolean hasNext() {
