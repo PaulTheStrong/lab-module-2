@@ -17,7 +17,10 @@ import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_SP
 import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
 import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
 import static com.epam.esm.exception.ExceptionCodes.ORDER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.PAGE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
 import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS;
+import static com.epam.esm.exception.ExceptionCodes.TAG_ALREADY_EXISTS;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_OR_ID_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
@@ -42,7 +45,9 @@ public class ErrorCodeToHttpStatusMapper {
         TAG_NAME_MUST_BE_SPECIFIED,
         TAG_NAME_OR_ID_MUST_BE_SPECIFIED,
         SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS,
-        TYPE_MISMATCH
+        TYPE_MISMATCH,
+        PAGE_SIZE_MUST_BE_POSITIVE,
+        PAGE_MUST_BE_POSITIVE
     ));
 
     private static final Set<String> NOT_FOUND = new HashSet<>(Arrays.asList(
@@ -58,7 +63,8 @@ public class ErrorCodeToHttpStatusMapper {
 
     private static final Set<String> CONFLICT = new HashSet<>(Arrays.asList(
             NOT_ENOUGH_MONEY,
-            UNABLE_TO_DELETE_ASSOCIATED_TAG
+            UNABLE_TO_DELETE_ASSOCIATED_TAG,
+            TAG_ALREADY_EXISTS
     ));
 
 

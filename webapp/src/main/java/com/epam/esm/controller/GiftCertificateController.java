@@ -24,10 +24,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Min;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.epam.esm.exception.ExceptionCodes.PAGE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
 
 @RestController
 @RequestMapping("/certificates")
@@ -38,6 +42,10 @@ public class GiftCertificateController {
     private final GiftCertificateService giftCertificateService;
     private final GiftCertificateModelAssembler giftCertificateModelAssembler;
     private final GiftCertificateModelProcessor giftCertificateModelProcessor;
+
+//    @Autowired
+//    private DatabaseFillApplicationRunner runner;
+//    private boolean isFilled = false;
 
     @Autowired
     public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateModelAssembler giftCertificateModelAssembler, GiftCertificateModelProcessor giftCertificateModelProcessor) {
@@ -70,8 +78,8 @@ public class GiftCertificateController {
             @RequestParam Optional<Set<String>> tags,
             @RequestParam Optional<List<String>> sortColumns,
             @RequestParam Optional<List<String>> sortTypes,
-            @RequestParam(defaultValue = START_PAGE) int page,
-            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize
+            @RequestParam(defaultValue = START_PAGE) @Min(value = 1, message = PAGE_MUST_BE_POSITIVE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(value = 1, message = PAGE_SIZE_MUST_BE_POSITIVE) int pageSize
     ) {
         List<GiftCertificateDto> certificates;
         PageInfo pageInfo;
@@ -103,6 +111,10 @@ public class GiftCertificateController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificateModel addCertificate(@Validated(SaveDto.class) @RequestBody GiftCertificateDto giftCertificateDto) {
+//        if (!isFilled) {
+//            runner.run();
+//            isFilled = true;
+//        }
         GiftCertificateDto certificate = giftCertificateService.addCertificate(giftCertificateDto);
         return giftCertificateModelAssembler.toModel(certificate);
     }

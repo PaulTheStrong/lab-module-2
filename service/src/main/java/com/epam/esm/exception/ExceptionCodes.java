@@ -24,4 +24,7 @@ public class ExceptionCodes {
     public static final String CONTENT_MEDIA_TYPE_NOT_SUPPORTED = "41501";
     public static final String UNABLE_TO_DELETE_ASSOCIATED_TAG = "40901";
     public static final String NOT_ENOUGH_MONEY = "40902";
+    public static final String TAG_ALREADY_EXISTS = "40903";
+    public static final String PAGE_MUST_BE_POSITIVE = "40013";
+    public static final String PAGE_SIZE_MUST_BE_POSITIVE = "40014";
 }

@@ -22,7 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Min;
 import java.util.List;
+
+import static com.epam.esm.exception.ExceptionCodes.PAGE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
 
 @RequestMapping("/users")
 @RestController
@@ -56,8 +60,8 @@ public class UserController {
      */
     @GetMapping
     public CollectionModel<UserModel> getAllUsers(
-            @RequestParam(defaultValue = START_PAGE) int page,
-            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
+            @RequestParam(defaultValue = START_PAGE) @Min(value = 1, message = PAGE_MUST_BE_POSITIVE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(value = 1, message = PAGE_SIZE_MUST_BE_POSITIVE) int pageSize) {
         List<User> users = userService.getUsers(page, pageSize);
         PageInfo pageInfo = userService.userPageInfo(page, pageSize);
         CollectionModel<UserModel> collectionModel = userModelAssembler.toCollectionModel(users);
@@ -88,8 +92,8 @@ public class UserController {
     @GetMapping("/{id}/orders")
     public CollectionModel<OrderModel> getUserOrders(
             @PathVariable int id,
-            @RequestParam(defaultValue = START_PAGE) int page,
-            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int size) {
+            @RequestParam(defaultValue = START_PAGE) @Min(value = 1, message = PAGE_MUST_BE_POSITIVE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(value = 1, message = PAGE_SIZE_MUST_BE_POSITIVE) int size) {
         List<OrderDto> userOrders = userService.getUserOrders(id, page, size);
         PageInfo pageInfo = userService.userOrdersPageInfo(id, page, size);
         CollectionModel<OrderModel> orderModels = orderModelAssembler.toCollectionModel(userOrders);

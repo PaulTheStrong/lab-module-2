@@ -21,7 +21,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
+
+import static com.epam.esm.exception.ExceptionCodes.PAGE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
 
 @RestController
 @RequestMapping("/tags")
@@ -56,10 +60,10 @@ public class TagController {
      */
     @GetMapping
     public CollectionModel<TagModel> getAll(
-            @RequestParam(defaultValue = START_PAGE) int page,
-            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
-        List<Tag> tags = tagService.getTags(page, pageSize);
+            @RequestParam(defaultValue = START_PAGE) @Min(value = 1, message = PAGE_MUST_BE_POSITIVE) int page,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(value = 1, message = PAGE_SIZE_MUST_BE_POSITIVE) int pageSize) {
         PageInfo pageInfo = tagService.tagPageInfo(page, pageSize);
+        List<Tag> tags = tagService.getTags(page, pageSize);
         CollectionModel<TagModel> collectionModel = tagModelAssembler.toCollectionModel(tags);
         return tagModelProcessor.process(collectionModel, pageInfo);
     }

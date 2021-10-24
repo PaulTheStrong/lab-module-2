@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import static com.epam.esm.exception.ExceptionCodes.TAG_ALREADY_EXISTS;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_DELETE_ASSOCIATED_TAG;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_TAG;
@@ -73,10 +74,12 @@ public class TagService {
      * @throws ServiceException if error occurs during saving process.
      */
     public Tag save(Tag tag) {
-        if (tagRepository.findByName(tag.getName()).isPresent()) {
-            throw new ServiceException("Tag already exists");
+        String tagName = tag.getName();
+        Optional<Tag> tagByNameFromRepo = tagRepository.findByName(tagName);
+        if (tagByNameFromRepo.isPresent()) {
+            throw new ServiceException(TAG_ALREADY_EXISTS);
         }
-        String lowerCaseName = tag.getName().toLowerCase(Locale.ROOT);
+        String lowerCaseName = tagName.toLowerCase(Locale.ROOT);
         tag.setName(lowerCaseName);
         Optional<Tag> updatedTag = tagRepository.save(tag);
         if (!updatedTag.isPresent()) {

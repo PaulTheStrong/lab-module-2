@@ -100,7 +100,7 @@ public class UserService {
     public User getUserById(int userId) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND);
+            throw new ServiceException(USER_NOT_FOUND, userId);
         }
         return user.get();
     }
