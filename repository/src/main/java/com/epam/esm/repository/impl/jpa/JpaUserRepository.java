@@ -68,10 +68,4 @@ public class JpaUserRepository implements UserRepository {
         TypedQuery<Long> query = entityManager.createQuery(COUNT_USERS, Long.class);
         return query.getSingleResult().intValue();
     }
-
-    @Override
-    public Optional<User> save(User entity) {
-        entityManager.persist(entity);
-        return Optional.of(entity);
-    }
 }
