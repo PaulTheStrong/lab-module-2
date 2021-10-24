@@ -49,8 +49,9 @@ class FilterParametersQueryBuilder {
         List<String> tagParameters = new ArrayList<>();
         if (tags != null && tags.size() > 0) {
             queryBuilder.append(JOIN_TAGS);
-            String tagsToAppend = tags.stream().reduce("", (tagsString, tag) -> tagsString.replace(" ", "_") + ":_" + tag + ",");
+            String tagsToAppend = tags.stream().reduce("", (tagsString, tag) -> tagsString + ":_" + tag + ",");
             tagsToAppend = tagsToAppend.substring(0, tagsToAppend.length() - 1);
+            tagsToAppend = tagsToAppend.replace(" ", "_");
             queryBuilder.append(tagsToAppend).append(")");
         }
         String search = filterParameters.getNameOrDescription();
