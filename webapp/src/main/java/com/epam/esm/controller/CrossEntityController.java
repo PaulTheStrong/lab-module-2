@@ -20,7 +20,7 @@ public class CrossEntityController {
         this.userService = userService;
     }
 
-    @GetMapping("/mostUsedTagOfUserWithHighestCostOfAllOrders")
+    @GetMapping("/most_popular_tag")
     public TagModel getMostUsedTagOfUserWithHighestCostOfAllOrders() {
         Tag tag = userService.getMostUsedTagOfUserWithHighestCostOfAllOrders();
         return tagModelAssembler.toModel(tag);
