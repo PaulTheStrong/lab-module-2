@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
 import static com.epam.esm.exception.ExceptionCodes.METHOD_NOT_SUPPORTED;
 import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;
@@ -53,6 +56,17 @@ public class ControllerExceptionHandler {
         BindingResult bindingResult = exception.getBindingResult();
         ObjectError error = bindingResult.getAllErrors().get(0);
         String errorCode = error.getDefaultMessage();
+        String localizedMessage = messageTranslator.toLocale(errorCode);
+        return new HttpErrorResponse(errorCode, localizedMessage);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseBody
+    public HttpErrorResponse handleConstraintViolationException(
+            ConstraintViolationException exception
+    ) {
+        ConstraintViolation<?> constraintViolation = exception.getConstraintViolations().stream().findFirst().get();
+        String errorCode = constraintViolation.getMessage();
         String localizedMessage = messageTranslator.toLocale(errorCode);
         return new HttpErrorResponse(errorCode, localizedMessage);
     }

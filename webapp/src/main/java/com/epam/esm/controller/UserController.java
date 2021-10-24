@@ -8,6 +8,7 @@ import com.epam.esm.entities.User;
 import com.epam.esm.hateoas.assembler.OrderModelAssembler;
 import com.epam.esm.hateoas.assembler.UserModelAssembler;
 import com.epam.esm.hateoas.model.OrderModel;
+import com.epam.esm.hateoas.model.PurchaseData;
 import com.epam.esm.hateoas.model.UserModel;
 import com.epam.esm.hateoas.processor.OrderModelProcessor;
 import com.epam.esm.hateoas.processor.UserModelProcessor;
@@ -17,13 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Map;
 
 import static com.epam.esm.exception.ExceptionCodes.PAGE_MUST_BE_POSITIVE;
 import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
@@ -122,8 +126,12 @@ public class UserController {
      * @param certificateId {@link GiftCertificate}'s id in database
      * @return newly created {@link OrderModel}
      */
-    @PutMapping("/{userId}/purchase/{certificateId}")
-    public OrderModel purchaseCertificate(@PathVariable int userId, @PathVariable int certificateId) {
+    @PostMapping("/{userId}/orders")
+    public OrderModel purchaseCertificate(
+            @PathVariable int userId,
+            @RequestBody PurchaseData purchaseData
+    ) {
+        int certificateId = purchaseData.getCertificateId();
         OrderDto order = purchaseService.purchaseCertificate(userId, certificateId);
         OrderModel orderModel = orderModelAssembler.toModel(order);
         return orderModelProcessor.process(orderModel);
