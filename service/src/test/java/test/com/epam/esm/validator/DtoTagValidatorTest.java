@@ -51,7 +51,7 @@ public class DtoTagValidatorTest {
 
     @Test
     public void testIsValidShouldReturnFalseWhenNameAndIdNull() {
-        Tag tag = new Tag(null, null, null);
+        Tag tag = new Tag(null, null);
         boolean actual = validator.isValid(tag, context);
         assertFalse(actual);
     }
