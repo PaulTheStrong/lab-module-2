@@ -53,7 +53,7 @@ public class PurchaseService {
         }
         Optional<GiftCertificate> certificateOptional = giftCertificateRepository.findById(certificateId);
         if (!certificateOptional.isPresent()) {
-            throw new ServiceException(CERTIFICATE_NOT_FOUND, userId);
+            throw new ServiceException(CERTIFICATE_NOT_FOUND, certificateId);
         }
         GiftCertificate certificate = certificateOptional.get();
         User user = userOptional.get();
