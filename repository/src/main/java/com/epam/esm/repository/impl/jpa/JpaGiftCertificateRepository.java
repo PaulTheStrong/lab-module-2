@@ -20,7 +20,6 @@ import java.util.Optional;
 public class JpaGiftCertificateRepository implements GiftCertificateRepository {
 
     private static final String SELECT_ALL = "SELECT gc FROM GiftCertificate gc WHERE gc.isAvailable=true";
-    private static final String DELETE_BY_ID = "UPDATE GiftCertificate gc SET gc.isAvailable = false WHERE gc.id =: id AND gc.isAvailable = true";
     private static final String COUNT_CERTIFICATES = "SELECT count(gc) FROM GiftCertificate gc WHERE gc.isAvailable=true";
 
     @PersistenceContext
@@ -54,9 +53,9 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
 
     @Override
     public Optional<GiftCertificate> save(GiftCertificate entity) {
-        GiftCertificate merged = entityManager.merge(entity);
-        merged.getTags().forEach(tag -> tag.getCertificates().add(merged));
-        return Optional.of(merged);
+        entityManager.persist(entity);
+        entity.getTags().forEach(tag -> tag.getCertificates().add(entity));
+        return Optional.of(entity);
     }
 
     @Override
@@ -77,10 +76,12 @@ public class JpaGiftCertificateRepository implements GiftCertificateRepository {
 
     @Override
     public boolean delete(int id) {
-        Query deleteQuery = entityManager.createQuery(DELETE_BY_ID);
-        deleteQuery.setParameter("id", id);
-        int rows = deleteQuery.executeUpdate();
-        return rows == 1;
+        GiftCertificate certificate = entityManager.find(GiftCertificate.class, id);
+        if (certificate == null || !certificate.isAvailable()) {
+            return false;
+        }
+        certificate.setAvailable(false);
+        return true;
     }
 
     @Override

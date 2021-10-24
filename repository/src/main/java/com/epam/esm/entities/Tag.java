@@ -1,11 +1,16 @@
 package com.epam.esm.entities;
 
+import com.epam.esm.entities.audit.Tag.TagAudit;
+import com.epam.esm.entities.audit.Tag.TagListener;
+import com.epam.esm.entities.audit.certificate.GiftCertificateListener;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.Table;
@@ -18,6 +23,7 @@ import java.util.List;
 @Entity
 @JsonIgnoreProperties("certificates")
 @Table(name="tag")
+@EntityListeners(TagListener.class)
 public class Tag extends Identifiable {
 
     @NotNull(message = "40008")
@@ -27,23 +33,10 @@ public class Tag extends Identifiable {
     @ManyToMany(mappedBy = "tags")
     private List<GiftCertificate> certificates = new ArrayList<>();
 
-    @Column(name = "is_available")
-    private boolean isAvailable;
-
     public Tag(Integer id, String name) {
         super(id);
         this.name = name;
         this.certificates = new ArrayList<>();
-    }
-
-    @PrePersist
-    private void prePersist() {
-        isAvailable = true;
-    }
-
-    @PreRemove
-    private void preRemove() {
-        isAvailable = false;
     }
 
     public Tag(String name) {
@@ -64,13 +57,5 @@ public class Tag extends Identifiable {
 
     public void setCertificates(List<GiftCertificate> certificates) {
         this.certificates = certificates;
-    }
-
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        isAvailable = available;
     }
 }

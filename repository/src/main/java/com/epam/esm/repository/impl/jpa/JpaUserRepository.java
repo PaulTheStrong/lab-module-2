@@ -17,9 +17,9 @@ import java.util.Optional;
 @Profile("jpa")
 public class JpaUserRepository implements UserRepository {
 
-    private static final String SELECT_ALL_USERS = "SELECT user FROM User user WHERE user.isActive=true";
+    private static final String SELECT_ALL_USERS = "SELECT user FROM User user";
     private static final String FIND_MOST_USED_TAG_OF_USER_WITH_HIGHEST_COST_OF_ALL_ORDERS =
-            "SELECT t.id, t.name, t.is_available FROM `order` o\n" +
+            "SELECT t.id, t.name FROM `order` o\n" +
             "    JOIN gift_certificate gc on o.certificate_id = gc.id\n" +
             "     JOIN tag_certificate tc on gc.id = tc.certificate_id\n" +
             "     JOIN tag t on tc.tag_id = t.id\n" +
@@ -31,7 +31,7 @@ public class JpaUserRepository implements UserRepository {
             "GROUP BY (t.id)\n" +
             "ORDER BY COUNT(t.id) DESC\n" +
             "    LIMIT 1";
-    private static final String COUNT_USERS = "SELECT count(u) FROM User u WHERE u.isActive = true";
+    private static final String COUNT_USERS = "SELECT count(u) FROM User u";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -67,5 +67,11 @@ public class JpaUserRepository implements UserRepository {
     public int countAll() {
         TypedQuery<Long> query = entityManager.createQuery(COUNT_USERS, Long.class);
         return query.getSingleResult().intValue();
+    }
+
+    @Override
+    public Optional<User> save(User entity) {
+        entityManager.persist(entity);
+        return Optional.of(entity);
     }
 }

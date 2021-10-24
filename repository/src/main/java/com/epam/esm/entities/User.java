@@ -1,10 +1,13 @@
 package com.epam.esm.entities;
 
+import com.epam.esm.entities.audit.certificate.GiftCertificateListener;
+import com.epam.esm.entities.audit.user.UserListener;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
@@ -21,6 +24,7 @@ import java.util.List;
 @Entity
 @Table(name="user")
 @NoArgsConstructor
+@EntityListeners(UserListener.class)
 public class User extends Identifiable{
 
     @Column(name="username")
@@ -33,37 +37,14 @@ public class User extends Identifiable{
     @NotNull
     private BigDecimal balance;
 
-    @Column(name="update_date")
-    private LocalDateTime updateDate;
-
-    @Column(name = "is_active")
-    private boolean isActive;
-
     @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     private List<Order> orders;
 
-    public User(int id, String username, BigDecimal balance, List<Order> orders) {
+    public User(Integer id, String username, BigDecimal balance, List<Order> orders) {
         super(id);
         this.username = username;
         this.balance = balance;
         this.orders = orders;
-    }
-
-    @PrePersist
-    private void prePersist() {
-        isActive = true;
-        updateDate = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    private void preUpdate() {
-        updateDate = LocalDateTime.now();
-    }
-
-    @PreRemove
-    private void preRemove() {
-        updateDate = LocalDateTime.now();
-        isActive = false;
     }
 
     public String getUsername() {
@@ -93,21 +74,5 @@ public class User extends Identifiable{
     public void addOrder(Order order) {
         orders.add(order);
         order.setUser(this);
-    }
-
-    public LocalDateTime getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(LocalDateTime updateDate) {
-        this.updateDate = updateDate;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
     }
 }

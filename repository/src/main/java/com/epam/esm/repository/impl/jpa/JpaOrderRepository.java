@@ -16,8 +16,8 @@ import java.util.Optional;
 @Profile("jpa")
 public class JpaOrderRepository implements OrderRepository {
 
-    private static final String FIND_ALL = "SELECT o FROM TheOrder o WHERE o.isAvailable = true";
-    private static final String COUNT_ORDERS = "SELECT count(o) FROM TheOrder o where o.isAvailable = true";
+    private static final String FIND_ALL = "SELECT o FROM TheOrder o";
+    private static final String COUNT_ORDERS = "SELECT count(o) FROM TheOrder o";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -37,9 +37,6 @@ public class JpaOrderRepository implements OrderRepository {
     @Override
     public Optional<Order> findById(int id) {
         Order order = entityManager.find(Order.class, id);
-        if (order != null && order.isAvailable()) {
-            return Optional.empty();
-        }
         return Optional.ofNullable(order);
     }
 

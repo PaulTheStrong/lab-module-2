@@ -15,7 +15,7 @@ import java.util.List;
 @Profile("jpa")
 public class JpaUserOrderUtil implements UserOrderUtil {
 
-    private static final String SELECT_USER_ORDERS_BY_ID = "SELECT orders FROM User user JOIN user.orders orders WHERE user.id =: user_id AND user.isActive = true";
+    private static final String SELECT_USER_ORDERS_BY_ID = "SELECT orders FROM User user JOIN user.orders orders WHERE user.id =: user_id";
     private static final String COUNT_USER_ORDERS = "SELECT count(o) FROM TheOrder o where o.user.id = :id";
 
     @PersistenceContext

@@ -1,11 +1,13 @@
 package com.epam.esm.entities;
 
+import com.epam.esm.entities.audit.certificate.GiftCertificateListener;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -15,11 +17,13 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
 @Entity
 @Table(name="gift_certificate")
+@EntityListeners(GiftCertificateListener.class)
 public class GiftCertificate extends Identifiable {
 
     @Column(name="name")
@@ -60,6 +64,7 @@ public class GiftCertificate extends Identifiable {
         this.duration = duration;
         this.createDate = createDate;
         this.lastUpdateDate = lastUpdateDate;
+        this.tags = new ArrayList<>();
     }
 
     public GiftCertificate(Integer id, String name, String description, BigDecimal price, Double duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, List<Tag> tags) {
@@ -72,25 +77,6 @@ public class GiftCertificate extends Identifiable {
         this.lastUpdateDate = lastUpdateDate;
         this.tags = tags;
     }
-
-    @PrePersist
-    private void prePersist() {
-        isAvailable = true;
-        lastUpdateDate = LocalDateTime.now();
-        createDate = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    private void preUpdate() {
-        lastUpdateDate = LocalDateTime.now();
-    }
-
-    @PreRemove
-    private void preRemove() {
-        lastUpdateDate = LocalDateTime.now();
-        isAvailable = false;
-    }
-
 
     public String getName() {
         return name;

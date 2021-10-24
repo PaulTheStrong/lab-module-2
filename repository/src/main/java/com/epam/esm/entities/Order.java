@@ -1,9 +1,12 @@
 package com.epam.esm.entities;
 
+import com.epam.esm.entities.audit.certificate.GiftCertificateListener;
+import com.epam.esm.entities.audit.order.OrderListener;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 @Table(name = "`order`")
 @Entity(name="TheOrder")
 @NoArgsConstructor
+@EntityListeners(OrderListener.class)
 public class Order extends Identifiable {
 
     @Column(name="total_price")
@@ -33,9 +37,6 @@ public class Order extends Identifiable {
     @JoinColumn(name="certificate_id")
     private GiftCertificate giftCertificate;
 
-    @Column(name = "is_available")
-    private boolean isAvailable;
-
     public Order(Integer id, BigDecimal totalPrice, LocalDateTime timestamp, User user, GiftCertificate giftCertificate) {
         super(id);
         this.totalPrice = totalPrice;
@@ -43,17 +44,6 @@ public class Order extends Identifiable {
         this.user = user;
         this.giftCertificate = giftCertificate;
     }
-
-    @PrePersist
-    private void prePersist() {
-        isAvailable = true;
-    }
-
-    @PreRemove
-    private void preRemove() {
-        isAvailable = false;
-    }
-
 
     public BigDecimal getTotalPrice() {
         return totalPrice;
@@ -85,13 +75,5 @@ public class Order extends Identifiable {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        isAvailable = available;
     }
 }

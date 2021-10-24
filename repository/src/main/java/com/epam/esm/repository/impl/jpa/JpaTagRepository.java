@@ -17,10 +17,9 @@ import java.util.Optional;
 @Profile("jpa")
 public class JpaTagRepository implements TagRepository {
 
-    private static final String SELECT_BY_NAME = "SELECT tag FROM Tag tag WHERE tag.name = :tagName AND tag.isAvailable=true";
-    private static final String DELETE_BY_ID = "UPDATE Tag tag SET tag.isAvailable=false WHERE id =: id AND tag.isAvailable=true";
-    private static final String SELECT_ALL = "SELECT tag FROM Tag tag WHERE tag.isAvailable = true";
-    private static final String COUNT_TAGS = "SELECT count(tag) FROM Tag tag WHERE tag.isAvailable = true";
+    private static final String SELECT_BY_NAME = "SELECT tag FROM Tag tag WHERE tag.name = :tagName";
+    private static final String SELECT_ALL = "SELECT tag FROM Tag tag";
+    private static final String COUNT_TAGS = "SELECT count(tag) FROM Tag tag";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -36,9 +35,6 @@ public class JpaTagRepository implements TagRepository {
     @Override
     public Optional<Tag> findById(int id) {
         Tag tag = entityManager.find(Tag.class, id);
-        if (tag != null && !tag.isAvailable()) {
-            return Optional.empty();
-        }
         return Optional.ofNullable(tag);
     }
 
@@ -50,10 +46,12 @@ public class JpaTagRepository implements TagRepository {
 
     @Override
     public boolean delete(int id) {
-        Query deleteQuery = entityManager.createQuery(DELETE_BY_ID);
-        deleteQuery.setParameter("id", id);
-        int rows = deleteQuery.executeUpdate();
-        return rows == 1;
+        Tag tag = entityManager.find(Tag.class, id);
+        if (tag == null) {
+            return false;
+        }
+        entityManager.remove(tag);
+        return true;
     }
 
     @Override
