@@ -5,8 +5,8 @@ CREATE TABLE gift_certificate
     `description`    VARCHAR(255)       NULL,
     price            DECIMAL            NULL,
     duration         DOUBLE             NULL,
-    create_date      datetime           NULL,
-    last_update_date datetime           NULL,
+    create_date      datetime           NULL DEFAULT CURRENT_TIMESTAMP,
+    last_update_date datetime           NULL DEFAULT CURRENT_TIMESTAMP,
     is_available     BIT(1)             NULL
 );
 
@@ -14,7 +14,7 @@ create table gift_certificate_audit
 (
     id              BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     certificate_id  BIGINT NOT NULL,
-    operation_date  DATETIME NOT NULL,
+    operation_date  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     operation_type  VARCHAR(10)
 );
 
@@ -28,7 +28,7 @@ create table tag_audit
 (
     id              BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     tag_id          BIGINT NOT NULL,
-    operation_date  DATETIME NOT NULL,
+    operation_date  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     operation_type  VARCHAR(10)
 );
 
@@ -44,15 +44,14 @@ CREATE TABLE user
 (
     id          BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     username    VARCHAR(255)       NULL,
-    balance     DECIMAL            NULL,
-    update_date datetime           NULL
+    balance     DECIMAL            NULL
 );
 
 create table user_audit
 (
     id              BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     user_id         BIGINT NOT NULL,
-    operation_date  DATETIME NOT NULL,
+    operation_date  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     operation_type  VARCHAR(10)
 );
 
@@ -71,6 +70,6 @@ create table order_audit
 (
     id              BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     order_id        BIGINT NOT NULL,
-    operation_date  DATETIME NOT NULL,
+    operation_date  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     operation_type  VARCHAR(10)
 );
