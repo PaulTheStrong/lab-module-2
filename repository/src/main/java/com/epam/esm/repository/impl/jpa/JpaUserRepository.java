@@ -68,4 +68,11 @@ public class JpaUserRepository implements UserRepository {
         TypedQuery<Long> query = entityManager.createQuery(COUNT_USERS, Long.class);
         return query.getSingleResult().intValue();
     }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        TypedQuery<User> findByUsernameQuery = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class);
+        findByUsernameQuery.setParameter("username", username);
+        return findByUsernameQuery.getResultList().stream().findFirst();
+    }
 }
