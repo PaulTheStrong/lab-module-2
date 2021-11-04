@@ -35,6 +35,7 @@ import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
 
 @RestController
 @RequestMapping("/certificates")
+@Validated
 public class GiftCertificateController {
 
     private static final String START_PAGE = "1";

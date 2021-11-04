@@ -35,7 +35,7 @@ public class OrderListener {
     }
 
     @PostPersist
-    private void doPostPersist(Order order) {
+    private void doPrePersist(Order order) {
         audit(order, CREATE);
     }
 
