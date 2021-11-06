@@ -7,6 +7,7 @@ import com.epam.esm.exception.ServiceException;
 import com.epam.esm.repository.api.TagCertificateUtil;
 import com.epam.esm.repository.api.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.epam.esm.exception.ExceptionCodes.TAG_ALREADY_EXISTS;
-import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
-import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_DELETE_ASSOCIATED_TAG;
-import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_TAG;
+import static com.epam.esm.exception.ExceptionCodes.*;
 
 @Component
 @RequestMapping("Tag")
@@ -62,9 +60,7 @@ public class TagService {
         if (tagCertificateUtil.countAssociatedCertificates(id) != 0) {
             throw new ServiceException(UNABLE_TO_DELETE_ASSOCIATED_TAG, id);
         }
-        if (!tagRepository.delete(id)) {
-            throw new ServiceException(TAG_NOT_FOUND, id);
-        }
+        tagRepository.delete(tagOptional.get());
     }
 
     /**
@@ -81,11 +77,7 @@ public class TagService {
         }
         String lowerCaseName = tagName.toLowerCase(Locale.ROOT);
         tag.setName(lowerCaseName);
-        Optional<Tag> updatedTag = tagRepository.save(tag);
-        if (!updatedTag.isPresent()) {
-            throw new ServiceException(UNABLE_TO_SAVE_TAG, lowerCaseName);
-        }
-        return updatedTag.get();
+        return tagRepository.save(tag);
     }
 
     /**
@@ -94,11 +86,11 @@ public class TagService {
      * @return {@link Tag} objects in pageable format.
      */
     public List<Tag> getTags(int pageNumber, int pageSize) {
-        return tagRepository.findAll(pageNumber, pageSize);
+        return tagRepository.findAll(PageRequest.of(pageNumber - 1, pageSize)).getContent();
     }
 
     public PageInfo tagPageInfo(int pageNumber, int pageSize) {
-        int tagCount = tagRepository.countAll();
+        int tagCount = (int)tagRepository.count();
         return new PageInfo(pageSize, pageNumber, tagCount);
     }
 }

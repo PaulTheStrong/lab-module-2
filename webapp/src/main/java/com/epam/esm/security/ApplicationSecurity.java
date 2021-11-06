@@ -1,6 +1,5 @@
 package com.epam.esm.security;
 
-import com.epam.esm.entities.Role;
 import com.epam.esm.entities.User;
 import com.epam.esm.filter.CustomAuthenticationFilter;
 import com.epam.esm.filter.CustomAuthorizationFilter;

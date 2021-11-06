@@ -1,13 +1,17 @@
 package com.epam.esm.repository.api;
 
 import com.epam.esm.entities.Tag;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Optional;
 
 /**
- * Repository for order entity. May perform {@link Savable}, {@link Deletable}, {@link Countable} and
- * {@link Findable} operations.
+ * Repository for Tag entity.
  */
-public interface TagRepository extends Findable<Tag>, Deletable<Tag>, Savable<Tag>, Countable {
+@EnableJpaAuditing
+public interface TagRepository extends PagingAndSortingRepository<Tag, Integer>, CustomTagRepository {
+
     Optional<Tag> findByName(String name);
+
 }

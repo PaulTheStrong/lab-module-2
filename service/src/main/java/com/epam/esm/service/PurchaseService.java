@@ -16,10 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
-import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
-import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_ORDER;
-import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.*;
 
 @Service
 @Transactional
@@ -66,11 +63,8 @@ public class PurchaseService {
         user.setBalance(newBalance);
         LocalDateTime now = LocalDateTime.now();
         Order order = new Order(null, price, now, user, certificate);
-        Optional<Order> savedOrder = orderRepository.save(order);
-        if (!savedOrder.isPresent()) {
-            throw new ServiceException(UNABLE_TO_SAVE_ORDER);
-        }
-        return new OrderDto(savedOrder.get());
+        Order savedOrder = orderRepository.save(order);
+        return new OrderDto(savedOrder);
     }
 
 }

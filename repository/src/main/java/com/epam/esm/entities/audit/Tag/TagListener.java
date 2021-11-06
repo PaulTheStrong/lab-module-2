@@ -1,20 +1,13 @@
 package com.epam.esm.entities.audit.Tag;
 
-import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.audit.AuditRepository;
-import com.epam.esm.entities.audit.certificate.GiftCertificateAudit;
-import com.epam.esm.entities.audit.order.OrderAudit;
-import com.epam.esm.entities.audit.order.OrderListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
-import javax.persistence.PostUpdate;
 import java.time.LocalDateTime;
 
 @Transactional

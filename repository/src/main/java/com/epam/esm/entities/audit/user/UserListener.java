@@ -1,17 +1,11 @@
 package com.epam.esm.entities.audit.user;
 
-import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
 import com.epam.esm.entities.audit.AuditRepository;
-import com.epam.esm.entities.audit.user.UserAudit;
-import com.epam.esm.entities.audit.Tag.TagListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;

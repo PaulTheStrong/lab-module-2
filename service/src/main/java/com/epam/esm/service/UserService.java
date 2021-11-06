@@ -7,13 +7,13 @@ import com.epam.esm.entities.Role;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
 import com.epam.esm.exception.ServiceException;
-import com.epam.esm.repository.api.GiftCertificateRepository;
 import com.epam.esm.repository.api.OrderRepository;
-import com.epam.esm.repository.api.UserOrderUtil;
+import com.epam.esm.repository.api.RoleRepository;
+import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.repository.api.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -39,10 +38,10 @@ import static com.epam.esm.exception.ExceptionCodes.*;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserOrderUtil userOrderUtil;
     private final OrderRepository orderRepository;
-    private final GiftCertificateRepository giftCertificateRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TagRepository tagRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -76,7 +75,7 @@ public class UserService implements UserDetailsService {
      * (pageNumber - 1) * pageSize
      */
     public List<User> getUsers(int pageNumber, int pageSize) {
-        return userRepository.findAll(pageNumber, pageSize);
+        return userRepository.findAll(PageRequest.of(pageNumber - 1, pageSize)).getContent();
     }
 
     /**
@@ -93,7 +92,7 @@ public class UserService implements UserDetailsService {
         if (!user.isPresent()) {
             throw new ServiceException(USER_NOT_FOUND, userId);
         }
-        return userOrderUtil.getUserOrders(userId, pageNumber, pageSize)
+        return orderRepository.getUserOrders(userId, PageRequest.of(pageNumber - 1, pageSize))
                 .stream()
                 .map(OrderDto::new)
                 .collect(Collectors.toList());
@@ -136,7 +135,7 @@ public class UserService implements UserDetailsService {
     }
 
     public Tag getMostUsedTagOfUserWithHighestCostOfAllOrders() {
-        Optional<Tag> tag = userRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders();
+        Optional<Tag> tag = tagRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders();
         if (!tag.isPresent()) {
             throw new ServiceException("No orders in database");
         }
@@ -144,12 +143,12 @@ public class UserService implements UserDetailsService {
     }
 
     public PageInfo userPageInfo(int pageNumber, int pageSize) {
-        int usersCount = userRepository.countAll();
+        int usersCount = (int)userRepository.count();
         return new PageInfo(pageSize, pageNumber, usersCount);
     }
 
     public PageInfo userOrdersPageInfo(int userId, int pageNumber, int pageSize) {
-        int userOrdersCount  = userOrderUtil.countUserOrders(userId);
+        int userOrdersCount  = orderRepository.countUserOrders(userId);
         return new PageInfo(pageSize, pageNumber, userOrdersCount);
     }
 
@@ -161,9 +160,9 @@ public class UserService implements UserDetailsService {
         user.setBalance(BigDecimal.ZERO);
         user.setOrders(null);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Optional<Role> role = userRepository.findRoleByName(Role.USER);
+        Optional<Role> role = roleRepository.findRoleByName(Role.USER);
         user.setRole(role.get());
         log.info("User {} has been registered", user.getUsername());
-        return userRepository.save(user).get();
+        return userRepository.save(user);
     }
 }

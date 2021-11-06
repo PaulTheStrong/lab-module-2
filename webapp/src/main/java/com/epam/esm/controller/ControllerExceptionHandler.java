@@ -22,9 +22,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
-import static com.epam.esm.exception.ExceptionCodes.METHOD_NOT_SUPPORTED;
-import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;
+import static com.epam.esm.exception.ExceptionCodes.*;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {

@@ -8,10 +8,8 @@ import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.repository.api.OrderRepository;
-import com.epam.esm.repository.api.UserOrderUtil;
 import com.epam.esm.repository.api.UserRepository;
 import com.epam.esm.service.UserService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)

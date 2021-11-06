@@ -12,23 +12,17 @@ import com.epam.esm.repository.impl.FilterParameters;
 import com.epam.esm.repository.impl.SortColumn;
 import com.epam.esm.repository.impl.SortType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
-import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS;
-import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
-import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_CERTIFICATE;
+import static com.epam.esm.exception.ExceptionCodes.*;
 
 /**
  * Provides functionality for working with {@link GiftCertificate}
@@ -61,11 +55,8 @@ public class GiftCertificateService {
 
         List<Tag> tags = certificate.getTags();
         getTagNamesByIdOrSaveInRepository(new HashSet<>(tags));
-        Optional<GiftCertificate> save = certificateRepository.save(certificate);
-        if (!save.isPresent()) {
-            throw new ServiceException(UNABLE_TO_SAVE_CERTIFICATE);
-        }
-        return dtoMapper.giftCertificateToDto(save.get());
+        GiftCertificate saved = certificateRepository.save(certificate);
+        return dtoMapper.giftCertificateToDto(saved);
     }
 
     /**
@@ -143,10 +134,8 @@ public class GiftCertificateService {
     private void saveTagInRepositoryAndSetId(Tag tag) {
         Optional<Tag> tagByName = tagRepository.findByName(tag.getName());
         if (!tagByName.isPresent()) {
-            Optional<Tag> savedTag = tagRepository.save(tag);
-            savedTag.ifPresent(t -> {
-                tag.setId(t.getId());
-            });
+            Tag savedTag = tagRepository.save(tag);
+            tag.setId(savedTag.getId());
         } else {
             Tag savedTag = tagByName.get();
             tag.setId(savedTag.getId());
@@ -185,7 +174,7 @@ public class GiftCertificateService {
      * associated {@link Tag}s starting from (pageNumber - 1) * pageSize.
      */
     public List<GiftCertificateDto> getCertificates(int pageNumber, int pageSize) {
-        return certificateRepository.findAll(pageNumber, pageSize)
+        return certificateRepository.findAll(PageRequest.of(pageNumber - 1, pageSize))
                 .stream()
                 .map(dtoMapper::giftCertificateToDto)
                 .collect(Collectors.toList());
@@ -249,14 +238,19 @@ public class GiftCertificateService {
      * @throws ServiceException if no {@link GiftCertificate} in database.
      */
     public void deleteCertificate(int id) {
-        boolean deleteResult = certificateRepository.delete(id);
-        if (!deleteResult) {
+        Optional<GiftCertificate> certificateOptional = certificateRepository.findById(id);
+        if (!certificateOptional.isPresent()) {
             throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
         }
+        GiftCertificate giftCertificate = certificateOptional.get();
+        if (!giftCertificate.isAvailable()) {
+            throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
+        }
+        giftCertificate.setAvailable(false);
     }
 
     public PageInfo giftCertificatePageInfo(int pageNumber, int pageSize) {
-        int usersCount = certificateRepository.countAll();
+        int usersCount = (int)certificateRepository.count();
         return new PageInfo(pageSize, pageNumber, usersCount);
     }
 
