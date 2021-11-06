@@ -123,7 +123,7 @@ public class UserController {
      * Creates new {@link Order} and subtracts {@link User}'s balance
      * by {@link GiftCertificate} price and create {@link OrderModel}.
      * @param userId {@link User}'s id in database
-     * @param certificateId {@link GiftCertificate}'s id in database
+     * @param purchaseData {@link GiftCertificate}'s id in database
      * @return newly created {@link OrderModel}
      */
     @PostMapping("/{userId}/orders")
@@ -135,5 +135,12 @@ public class UserController {
         OrderDto order = purchaseService.purchaseCertificate(userId, certificateId);
         OrderModel orderModel = orderModelAssembler.toModel(order);
         return orderModelProcessor.process(orderModel);
+    }
+
+    @PostMapping
+    public UserModel register(@RequestBody User user) {
+        User savedUser = userService.register(user);
+        UserModel userModel = userModelAssembler.toModel(savedUser);
+        return userModelProcessor.process(userModel);
     }
 }

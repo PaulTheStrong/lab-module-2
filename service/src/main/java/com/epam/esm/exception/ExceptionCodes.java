@@ -12,6 +12,11 @@ public class ExceptionCodes {
     public static final String TAG_NAME_OR_ID_MUST_BE_SPECIFIED = "40009";
     public static final String SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS = "40010";
     public static final String TYPE_MISMATCH = "40012";
+    public static final String PAGE_MUST_BE_POSITIVE = "40013";
+    public static final String PAGE_SIZE_MUST_BE_POSITIVE = "40014";
+    public static final String USERNAME_SIZE_CONSTRAINT_VIOLATION = "40015";
+    public static final String USERNAME_MUST_BE_SPECIFIED = "40016";
+    public static final String PASSWORD_MUST_BE_SPECIFIED = "40017";
     public static final String CERTIFICATE_NOT_FOUND = "40401";
     public static final String TAG_NOT_FOUND = "40402";
     public static final String UNABLE_TO_SAVE_CERTIFICATE = "40403";
@@ -25,6 +30,5 @@ public class ExceptionCodes {
     public static final String UNABLE_TO_DELETE_ASSOCIATED_TAG = "40901";
     public static final String NOT_ENOUGH_MONEY = "40902";
     public static final String TAG_ALREADY_EXISTS = "40903";
-    public static final String PAGE_MUST_BE_POSITIVE = "40013";
-    public static final String PAGE_SIZE_MUST_BE_POSITIVE = "40014";
+    public static final String USER_WITH_SUCH_USERNAME_EXISTS = "40904";
 }

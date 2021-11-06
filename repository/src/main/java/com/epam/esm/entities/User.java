@@ -30,8 +30,8 @@ import java.util.List;
 public class User extends Identifiable{
 
     @Column(name="username")
-    @Size(max=20, min=4)
-    @NotNull
+    @Size(max=20, min=4, message = "40015")
+    @NotNull(message = "40016")
     private String username;
 
     @Column(name="balance")
@@ -40,6 +40,7 @@ public class User extends Identifiable{
     private BigDecimal balance;
 
     @Column(name = "password")
+    @NotNull(message = "40017")
     private String password;
 
     @ManyToOne

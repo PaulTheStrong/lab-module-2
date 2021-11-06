@@ -12,14 +12,17 @@ import com.epam.esm.repository.api.OrderRepository;
 import com.epam.esm.repository.api.UserOrderUtil;
 import com.epam.esm.repository.api.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,32 +30,42 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.exception.ExceptionCodes.USER_DOESNT_HAVE_THIS_ORDER;
-import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.*;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserOrderUtil userOrderUtil;
     private final OrderRepository orderRepository;
     private final GiftCertificateRepository giftCertificateRepository;
-
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (!userOptional.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND);
+            throw new UsernameNotFoundException("User with username " + username + " not found");
         }
         User user = userOptional.get();
         Role role = user.getRole();
         String roleName = role.getName();
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleName);
         Collection<SimpleGrantedAuthority> authorities = Collections.singletonList(authority);
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+        String password = user.getPassword();
+        log.info("User credentials::loadUserByUsername. Username : {}. Password : {}", username, password);
+        return new org.springframework.security.core.userdetails.User(username, password, authorities);
+    }
+
+    public User getUserByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (!userOptional.isPresent()) {
+            throw new ServiceException(USER_NOT_FOUND);
+        }
+        return userOptional.get();
     }
 
     /**
@@ -138,5 +151,19 @@ public class UserService implements UserDetailsService {
     public PageInfo userOrdersPageInfo(int userId, int pageNumber, int pageSize) {
         int userOrdersCount  = userOrderUtil.countUserOrders(userId);
         return new PageInfo(pageSize, pageNumber, userOrdersCount);
+    }
+
+    public User register(User user) {
+        Optional<User> userOptional = userRepository.findByUsername(user.getUsername());
+        if (userOptional.isPresent()) {
+            throw new ServiceException(USER_WITH_SUCH_USERNAME_EXISTS);
+        }
+        user.setBalance(BigDecimal.ZERO);
+        user.setOrders(null);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Optional<Role> role = userRepository.findRoleByName(Role.USER);
+        user.setRole(role.get());
+        log.info("User {} has been registered", user.getUsername());
+        return userRepository.save(user).get();
     }
 }

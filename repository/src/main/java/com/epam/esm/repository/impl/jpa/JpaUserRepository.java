@@ -1,5 +1,6 @@
 package com.epam.esm.repository.impl.jpa;
 
+import com.epam.esm.entities.Role;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
 import com.epam.esm.repository.api.UserRepository;
@@ -32,6 +33,8 @@ public class JpaUserRepository implements UserRepository {
             "ORDER BY COUNT(t.id) DESC\n" +
             "    LIMIT 1";
     private static final String COUNT_USERS = "SELECT count(u) FROM User u";
+    public static final String FIND_BY_USERNAME = "SELECT u FROM User u WHERE u.username = :username";
+    public static final String FIND_ROLE_BY_NAME = "SELECT r FROM Role r WHERE r.name = :name";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -71,8 +74,21 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        TypedQuery<User> findByUsernameQuery = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class);
+        TypedQuery<User> findByUsernameQuery = entityManager.createQuery(FIND_BY_USERNAME, User.class);
         findByUsernameQuery.setParameter("username", username);
         return findByUsernameQuery.getResultList().stream().findFirst();
+    }
+
+    @Override
+    public Optional<User> save(User user) {
+        entityManager.persist(user);
+        return Optional.of(user);
+    }
+
+    @Override
+    public Optional<Role> findRoleByName(String roleName) {
+        TypedQuery<Role> query = entityManager.createQuery(FIND_ROLE_BY_NAME, Role.class);
+        query.setParameter("name", roleName);
+        return Optional.of(query.getSingleResult());
     }
 }
