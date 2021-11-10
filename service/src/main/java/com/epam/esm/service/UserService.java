@@ -11,6 +11,7 @@ import com.epam.esm.repository.api.OrderRepository;
 import com.epam.esm.repository.api.RoleRepository;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.repository.api.UserRepository;
+import com.epam.esm.security.ApplicationUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -50,13 +51,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("User with username " + username + " not found");
         }
         User user = userOptional.get();
-        Role role = user.getRole();
-        String roleName = role.getName();
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleName);
-        Collection<SimpleGrantedAuthority> authorities = Collections.singletonList(authority);
-        String password = user.getPassword();
-        log.info("User credentials::loadUserByUsername. Username : {}. Password : {}", username, password);
-        return new org.springframework.security.core.userdetails.User(username, password, authorities);
+        return new ApplicationUser(user);
     }
 
     public User getUserByUsername(String username) {
@@ -160,7 +155,7 @@ public class UserService implements UserDetailsService {
         user.setBalance(BigDecimal.ZERO);
         user.setOrders(null);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Optional<Role> role = roleRepository.findRoleByName(Role.USER);
+        Optional<Role> role = roleRepository.findRoleByName(ApplicationUser.USER);
         user.setRole(role.get());
         log.info("User {} has been registered", user.getUsername());
         return userRepository.save(user);

@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.epam.esm.exception.ErrorCodeToHttpStatusMapper;
 import com.epam.esm.exception.HttpErrorResponse;
 import com.epam.esm.exception.ServiceException;
@@ -102,5 +103,4 @@ public class ControllerExceptionHandler {
         String localizedMessage = messageTranslator.toLocale(errorCode, method);
         return new HttpErrorResponse(errorCode, localizedMessage);
     }
-
 }

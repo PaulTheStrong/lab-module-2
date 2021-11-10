@@ -21,9 +21,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
 
-import static com.epam.esm.entities.Role.ADMIN;
-import static com.epam.esm.entities.Role.USER;
-import static org.springframework.http.HttpMethod.*;
+import static com.epam.esm.security.ApplicationUser.ADMIN;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -32,7 +34,6 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Slf4j
 public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
 
-    public static final String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
