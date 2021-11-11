@@ -41,6 +41,7 @@ public class GiftCertificateListener {
         audit(giftCertificate, CREATE);
         LocalDateTime now = LocalDateTime.now();
         giftCertificate.setCreateDate(now);
+        giftCertificate.setLastUpdateDate(now);
         giftCertificate.setAvailable(true);
     }
 
