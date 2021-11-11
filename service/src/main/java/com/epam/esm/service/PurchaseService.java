@@ -16,7 +16,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
+import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
+
 
 @Service
 @Transactional

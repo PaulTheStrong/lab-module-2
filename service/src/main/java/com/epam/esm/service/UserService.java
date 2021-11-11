@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.USER_DOESNT_HAVE_THIS_ORDER;
+import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.USER_WITH_SUCH_USERNAME_EXISTS;
 
 @Transactional
 @Service

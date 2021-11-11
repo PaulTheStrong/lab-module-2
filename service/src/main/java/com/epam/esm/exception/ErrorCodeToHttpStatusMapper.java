@@ -6,7 +6,36 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DESCRIPTION_LENGTH_CONSTRAINT;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DURATION_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DURATION_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NAME_LENGTH_CONSTRAINT;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NAME_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
+import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
+import static com.epam.esm.exception.ExceptionCodes.ORDER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.PAGE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
+import static com.epam.esm.exception.ExceptionCodes.PASSWORD_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS;
+import static com.epam.esm.exception.ExceptionCodes.TAG_ALREADY_EXISTS;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_OR_ID_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_DELETE_ASSOCIATED_TAG;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_CERTIFICATE;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_ORDER;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_TAG;
+import static com.epam.esm.exception.ExceptionCodes.USERNAME_MUST_BE_SPECIFIED;
+import static com.epam.esm.exception.ExceptionCodes.USERNAME_SIZE_CONSTRAINT_VIOLATION;
+import static com.epam.esm.exception.ExceptionCodes.USER_DOESNT_HAVE_THIS_ORDER;
+import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.USER_WITH_SUCH_USERNAME_EXISTS;
+
 
 public class ErrorCodeToHttpStatusMapper {
 

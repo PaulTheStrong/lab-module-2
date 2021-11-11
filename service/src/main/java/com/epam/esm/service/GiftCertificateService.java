@@ -18,11 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
 
 /**
  * Provides functionality for working with {@link GiftCertificate}

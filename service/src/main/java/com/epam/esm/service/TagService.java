@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static com.epam.esm.exception.ExceptionCodes.*;
+import static com.epam.esm.exception.ExceptionCodes.TAG_ALREADY_EXISTS;
+import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_DELETE_ASSOCIATED_TAG;
 
 @Component
 @RequestMapping("Tag")
