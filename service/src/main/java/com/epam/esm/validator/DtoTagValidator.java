@@ -11,8 +11,8 @@ public class DtoTagValidator implements ConstraintValidator<DtoTag, Tag> {
     public boolean isValid(Tag tag, ConstraintValidatorContext context) {
         boolean valid = true;
         if (!((tag.getName() != null
-                && tag.getName().length() < 20
-                && tag.getName().length() > 1)
+                && tag.getName().length() <= 20
+                && tag.getName().length() >= 1)
                 || (tag.getId() != null))) {
             context.buildConstraintViolationWithTemplate("{tag.dto.constraint.message}");
             valid = false;

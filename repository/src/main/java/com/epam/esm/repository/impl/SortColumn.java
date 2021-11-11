@@ -2,8 +2,11 @@ package com.epam.esm.repository.impl;
 
 import java.util.Locale;
 
+/**
+ * Represents names of sorting columns.
+ */
 public enum SortColumn {
-    DATE("gift_certificate.create_date"), NAME("gift_certificate.name"), NONE("");
+    DATE("createDate"), NAME("name"), NONE("");
     private final String column;
 
     SortColumn(String column) {

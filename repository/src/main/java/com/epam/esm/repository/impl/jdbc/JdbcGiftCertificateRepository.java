@@ -1,11 +1,12 @@
-package com.epam.esm.repository.impl;
+package com.epam.esm.repository.impl.jdbc;
 
 import com.epam.esm.entities.GiftCertificate;
-import com.epam.esm.repository.GiftCertificateRepository;
+import com.epam.esm.repository.api.GiftCertificateRepository;
+import com.epam.esm.repository.impl.FilterParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
+@Profile("jdbc")
+public class JdbcGiftCertificateRepository implements GiftCertificateRepository {
 
     private static final String GET_ALL = "SELECT * FROM gift_certificate";
     private static final String UPDATE =
@@ -39,7 +41,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private final SimpleJdbcInsert jdbcInsert;
 
     @Autowired
-    public GiftCertificateRepositoryImpl(JdbcTemplate jdbcTemplate, RowMapper<GiftCertificate> mapper, @Qualifier("GiftCertificate") SimpleJdbcInsert jdbcInsert) {
+    public JdbcGiftCertificateRepository(JdbcTemplate jdbcTemplate, RowMapper<GiftCertificate> mapper, @Qualifier("GiftCertificate") SimpleJdbcInsert jdbcInsert) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         this.jdbcInsert = jdbcInsert;
@@ -89,7 +91,9 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public List<GiftCertificate> findBySpecification(PreparedStatementCreator preparedStatementCreator) {
+    public List<GiftCertificate> findBySpecification(FilterParameters filterParameters) {
+        GiftCertificatePreparedStatementCreator preparedStatementCreator
+                = new GiftCertificatePreparedStatementCreator(filterParameters);
         return jdbcTemplate.query(preparedStatementCreator, mapper);
     }
 

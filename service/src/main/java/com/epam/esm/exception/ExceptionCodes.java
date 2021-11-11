@@ -11,13 +11,20 @@ public class ExceptionCodes {
     public static final String TAG_NAME_MUST_BE_SPECIFIED = "40008";
     public static final String TAG_NAME_OR_ID_MUST_BE_SPECIFIED = "40009";
     public static final String SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS = "40010";
-    public static final String TAG_MUST_HAVE_ID_OR_NAME = "40011";
     public static final String TYPE_MISMATCH = "40012";
-    public static final String UNABLE_TO_DELETE_ASSOCIATED_TAG = "40901";
     public static final String CERTIFICATE_NOT_FOUND = "40401";
     public static final String TAG_NOT_FOUND = "40402";
     public static final String UNABLE_TO_SAVE_CERTIFICATE = "40403";
     public static final String UNABLE_TO_SAVE_TAG = "40404";
+    public static final String USER_NOT_FOUND = "40405";
+    public static final String ORDER_NOT_FOUND = "40406";
+    public static final String UNABLE_TO_SAVE_ORDER = "40407";
+    public static final String USER_DOESNT_HAVE_THIS_ORDER = "40408";
     public static final String METHOD_NOT_SUPPORTED = "40501";
     public static final String CONTENT_MEDIA_TYPE_NOT_SUPPORTED = "41501";
+    public static final String UNABLE_TO_DELETE_ASSOCIATED_TAG = "40901";
+    public static final String NOT_ENOUGH_MONEY = "40902";
+    public static final String TAG_ALREADY_EXISTS = "40903";
+    public static final String PAGE_MUST_BE_POSITIVE = "40013";
+    public static final String PAGE_SIZE_MUST_BE_POSITIVE = "40014";
 }
