@@ -2,8 +2,10 @@ package com.epam.esm.config;
 
 import com.epam.esm.exception.ErrorCodeToHttpStatusMapper;
 import com.epam.esm.security.ApplicationSecurity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +21,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 @Configuration
 @ComponentScan(basePackages = {"com.epam.esm"})
-@PropertySource("classpath:webapp.properties")
+@EnableConfigurationProperties
 @Import(value = {RepositoryConfig.class, ApplicationSecurity.class})
 public class WebConfig implements WebMvcConfigurer {
 
@@ -28,14 +30,15 @@ public class WebConfig implements WebMvcConfigurer {
         registry.enableContentNegotiation(new MappingJackson2JsonView());
     }
 
+    @Autowired
+    private WebApplicationProperties webApplicationProperties;
+
     @Bean
     @Qualifier("errorMessages")
-    public ResourceBundleMessageSource messageSource(
-            @Value("${exceptionMessagesFilename}") String resourceBundleBaseName,
-            @Value("${defaultEncoding}") String defaultEncoding) {
+    public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource rs = new ResourceBundleMessageSource();
-        rs.setBasename(resourceBundleBaseName);
-        rs.setDefaultEncoding(defaultEncoding);
+        rs.setBasename(webApplicationProperties.getExceptionMessagesFilename());
+        rs.setDefaultEncoding(webApplicationProperties.getDefaultEncoding());
         rs.setUseCodeAsDefaultMessage(true);
         return rs;
     }

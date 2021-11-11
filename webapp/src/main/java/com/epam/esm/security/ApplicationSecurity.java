@@ -80,7 +80,6 @@ public class ApplicationSecurity extends WebSecurityConfigurerAdapter {
         http.addFilter(authenticationFilter);
         http.addFilterBefore(authorizationFilter, CustomAuthenticationFilter.class);
         http.exceptionHandling()
-//                .authenticationEntryPoint(exceptionEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler);
     }
 

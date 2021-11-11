@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -152,7 +153,7 @@ public class UserService implements UserDetailsService {
             throw new ServiceException(USER_WITH_SUCH_USERNAME_EXISTS);
         }
         user.setBalance(BigDecimal.ZERO);
-        user.setOrders(null);
+        user.setOrders(Collections.emptyList());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Optional<Role> role = roleRepository.findRoleByName(ApplicationSecurityUserDetails.USER);
         user.setRole(role.get());
