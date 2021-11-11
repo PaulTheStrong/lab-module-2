@@ -1,11 +1,13 @@
 plugins {
-    id 'java'
-    id 'jacoco'
+    id "java"
+    id "jacoco"
 }
 
+project.ext.set("spring_boot_version", "2.5.5")
+
 dependencies {
-    implementation project(':webapp')
-    compileOnly("org.springframework.boot:spring-boot-devtools:2.5.5")
+    implementation project(":webapp")
+    compileOnly("org.springframework.boot:spring-boot-devtools:$spring_boot_version")
 }
 
 repositories {
@@ -15,25 +17,25 @@ repositories {
 
 
 subprojects {
-    apply plugin: 'java'
+    apply plugin: "java"
     repositories {
         mavenLocal()
         mavenCentral()
     }
     dependencies {
-        implementation('org.springframework.boot:spring-boot-starter-web:2.5.5')
-        implementation('org.springframework.boot:spring-boot-starter-data-jpa:2.5.5')
-        implementation('org.springframework.boot:spring-boot-starter-jdbc:2.5.5')
-        implementation('org.springframework.boot:spring-boot-starter-validation:2.5.5')
-        implementation('org.springframework.boot:spring-boot-starter-hateoas:2.5.5')
-        implementation('org.springframework.boot:spring-boot-starter-security:2.5.5')
-        implementation('com.auth0:java-jwt:3.18.2')
-        implementation('org.threeten:threetenbp:1.5.1')
+        implementation("org.springframework.boot:spring-boot-starter-web:$spring_boot_version")
+        implementation("org.springframework.boot:spring-boot-starter-data-jpa:$spring_boot_version")
+        implementation("org.springframework.boot:spring-boot-starter-jdbc:$spring_boot_version")
+        implementation("org.springframework.boot:spring-boot-starter-validation:$spring_boot_version")
+        implementation("org.springframework.boot:spring-boot-starter-hateoas:$spring_boot_version")
+        implementation("org.springframework.boot:spring-boot-starter-security:$spring_boot_version")
+        implementation("com.auth0:java-jwt:3.18.2")
+        implementation("org.threeten:threetenbp:1.5.1")
 
-        compileOnly 'org.projectlombok:lombok:1.18.20'
-        annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        compileOnly "org.projectlombok:lombok:1.18.20"
+        annotationProcessor "org.projectlombok:lombok:1.18.20"
 
-        testImplementation('org.springframework.boot:spring-boot-starter-test:2.5.5')
+        testImplementation("org.springframework.boot:spring-boot-starter-test:$spring_boot_version")
     }
     test {
         useJUnitPlatform()
@@ -44,11 +46,11 @@ subprojects {
     }
 }
 
-group = 'com.epam.esm'
-version = '1.0-SNAPSHOT'
-description = 'rest-basics Maven Webapp'
+group = "com.epam.esm"
+version = "1.0-SNAPSHOT"
+description = "rest-basics Maven Webapp"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+    options.encoding = "UTF-8"
 }
