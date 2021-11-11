@@ -35,6 +35,7 @@ import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
 
 @RestController
 @RequestMapping("/certificates")
+@Validated
 public class GiftCertificateController {
 
     private static final String START_PAGE = "1";
@@ -42,10 +43,6 @@ public class GiftCertificateController {
     private final GiftCertificateService giftCertificateService;
     private final GiftCertificateModelAssembler giftCertificateModelAssembler;
     private final GiftCertificateModelProcessor giftCertificateModelProcessor;
-
-//    @Autowired
-//    private DatabaseFillApplicationRunner runner;
-//    private boolean isFilled = false;
 
     @Autowired
     public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateModelAssembler giftCertificateModelAssembler, GiftCertificateModelProcessor giftCertificateModelProcessor) {
@@ -111,10 +108,6 @@ public class GiftCertificateController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificateModel addCertificate(@Validated(SaveDto.class) @RequestBody GiftCertificateDto giftCertificateDto) {
-//        if (!isFilled) {
-//            runner.run();
-//            isFilled = true;
-//        }
         GiftCertificateDto certificate = giftCertificateService.addCertificate(giftCertificateDto);
         return giftCertificateModelAssembler.toModel(certificate);
     }
