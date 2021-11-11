@@ -9,25 +9,28 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public class ApplicationUser implements UserDetails {
+public class ApplicationSecurityUserDetails implements UserDetails {
 
-    public static final String USER = "ROLE_USER";
-    public static final String ADMIN = "ROLE_ADMIN";
+    public static final String USER = "USER";
+    public static final String ADMIN = "ADMIN";
 
     private final String username;
     private final String password;
-    private final Role role;
+    private final GrantedAuthority authority;
 
-    public ApplicationUser(User user) {
+    public ApplicationSecurityUserDetails(User user) {
         username = user.getUsername();
         password = user.getPassword();
-        role = user.getRole();
+        authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getName());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getName());
         return Collections.singletonList(authority);
+    }
+
+    public String getAuthority() {
+        return authority.getAuthority();
     }
 
     @Override

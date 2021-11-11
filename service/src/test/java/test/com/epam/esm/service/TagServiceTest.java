@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
@@ -53,7 +56,7 @@ public class TagServiceTest {
     @Test
     public void testGetAllShouldReturnAllWhenDbContainsTags() {
         List<Tag> tagList = Arrays.asList(TEST_TAGS);
-        when(tagRepository.findAll(1, 10)).thenReturn(tagList);
+        when(tagRepository.findAll(PageRequest.of(1, 10))).thenReturn(new PageImpl<>(tagList));
 
         List<Tag> result = tagService.getTags(1, 10);
 
@@ -62,7 +65,7 @@ public class TagServiceTest {
 
     @Test
     public void testGetAllShouldReturnEmptyListWhenNothingFound() {
-        when(tagRepository.findAll(1, 10)).thenReturn(Collections.emptyList());
+        when(tagRepository.findAll(PageRequest.of(1, 10))).thenReturn(Page.empty());
 
         List<Tag> result = tagService.getTags(1, 10);
 
@@ -79,7 +82,7 @@ public class TagServiceTest {
     @Test
     public void testSaveShouldReturnTag() {
         Tag testTag = TEST_TAGS[0];
-        when(tagRepository.save(testTag)).thenReturn(Optional.of(testTag));
+        when(tagRepository.save(testTag)).thenReturn(testTag);
 
         Tag saved = tagService.save(testTag);
 
@@ -88,7 +91,7 @@ public class TagServiceTest {
 
     @Test
     public void testGetTagPageInfo() {
-        when(tagRepository.countAll()).thenReturn(15);
+        when(tagRepository.count()).thenReturn(15L);
         PageInfo expected = new PageInfo(5, 2, 15);
         PageInfo actual = tagService.tagPageInfo(2, 5);
         assertEquals(expected.getCurrentPage(), actual.getCurrentPage());

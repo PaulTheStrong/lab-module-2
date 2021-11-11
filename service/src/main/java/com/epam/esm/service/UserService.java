@@ -11,11 +11,10 @@ import com.epam.esm.repository.api.OrderRepository;
 import com.epam.esm.repository.api.RoleRepository;
 import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.repository.api.UserRepository;
-import com.epam.esm.security.ApplicationUser;
+import com.epam.esm.security.ApplicationSecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,8 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,7 +48,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("User with username " + username + " not found");
         }
         User user = userOptional.get();
-        return new ApplicationUser(user);
+        return new ApplicationSecurityUserDetails(user);
     }
 
     public User getUserByUsername(String username) {
@@ -155,7 +152,7 @@ public class UserService implements UserDetailsService {
         user.setBalance(BigDecimal.ZERO);
         user.setOrders(null);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Optional<Role> role = roleRepository.findRoleByName(ApplicationUser.USER);
+        Optional<Role> role = roleRepository.findRoleByName(ApplicationSecurityUserDetails.USER);
         user.setRole(role.get());
         log.info("User {} has been registered", user.getUsername());
         return userRepository.save(user);
