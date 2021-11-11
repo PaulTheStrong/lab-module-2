@@ -1,5 +1,6 @@
 package com.epam.esm.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -7,6 +8,7 @@ import javax.persistence.Table;
 @Table(name = "role")
 public class Role extends Identifiable {
 
+    @Column(name = "name")
     private String name;
 
     public String getName() {
