@@ -1,7 +1,6 @@
 package com.epam.esm.entities.audit.Tag;
 
 import com.epam.esm.entities.audit.AuditRepository;
-import com.epam.esm.entities.audit.Tag.TagAudit;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

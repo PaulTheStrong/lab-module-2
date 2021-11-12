@@ -1,14 +1,17 @@
 package com.epam.esm.config;
 
 import com.epam.esm.exception.ErrorCodeToHttpStatusMapper;
+import com.epam.esm.security.ApplicationSecurityConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,8 +19,8 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 @Configuration
 @ComponentScan(basePackages = {"com.epam.esm"})
-@PropertySource("classpath:webapp.properties")
-@Import(value = {RepositoryConfig.class})
+@EnableConfigurationProperties
+@Import(value = {RepositoryConfig.class, ApplicationSecurityConfiguration.class})
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
@@ -25,14 +28,15 @@ public class WebConfig implements WebMvcConfigurer {
         registry.enableContentNegotiation(new MappingJackson2JsonView());
     }
 
+    @Autowired
+    private WebApplicationProperties webApplicationProperties;
+
     @Bean
     @Qualifier("errorMessages")
-    public ResourceBundleMessageSource messageSource(
-            @Value("${exceptionMessagesFilename}") String resourceBundleBaseName,
-            @Value("${defaultEncoding}") String defaultEncoding) {
+    public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource rs = new ResourceBundleMessageSource();
-        rs.setBasename(resourceBundleBaseName);
-        rs.setDefaultEncoding(defaultEncoding);
+        rs.setBasename(webApplicationProperties.getExceptionMessagesFilename());
+        rs.setDefaultEncoding(webApplicationProperties.getDefaultEncoding());
         rs.setUseCodeAsDefaultMessage(true);
         return rs;
     }
@@ -48,4 +52,10 @@ public class WebConfig implements WebMvcConfigurer {
         localValidatorFactoryBean.getValidationPropertyMap().put("hibernate.validator.fail_fast", "true");
         return localValidatorFactoryBean;
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
+    }
+
 }

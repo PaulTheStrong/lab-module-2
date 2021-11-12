@@ -1,18 +1,12 @@
 package com.epam.esm.entities;
 
-import com.epam.esm.entities.audit.Tag.TagAudit;
 import com.epam.esm.entities.audit.Tag.TagListener;
-import com.epam.esm.entities.audit.certificate.GiftCertificateListener;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreRemove;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

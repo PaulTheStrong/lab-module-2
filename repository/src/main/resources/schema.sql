@@ -40,11 +40,21 @@ create table tag_certificate (
      PRIMARY KEY (certificate_id, tag_id)
 );
 
+CREATE TABLE role
+(
+    id          INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    name        VARCHAR(20) NOT NULL
+);
+
+INSERT INTO role (name) VALUES ('ROLE_ADMIN'), ('ROLE_USER'), ('ROLE_GUEST');
+
 CREATE TABLE user
 (
     id          BIGINT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     username    VARCHAR(255)       NULL,
-    balance     DECIMAL            NULL
+    balance     DECIMAL            NULL,
+    role_id     INT NOT NULL,
+    foreign key (role_id) references role(id)
 );
 
 create table user_audit

@@ -1,6 +1,5 @@
 package com.epam.esm.entities;
 
-import com.epam.esm.entities.audit.certificate.GiftCertificateListener;
 import com.epam.esm.entities.audit.user.UserListener;
 import lombok.NoArgsConstructor;
 
@@ -8,17 +7,14 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreRemove;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,14 +24,22 @@ import java.util.List;
 public class User extends Identifiable{
 
     @Column(name="username")
-    @Size(max=20, min=4)
-    @NotNull
+    @Size(max=20, min=4, message = "40015")
+    @NotNull(message = "40016")
     private String username;
 
     @Column(name="balance")
     @Min(0)
     @NotNull
     private BigDecimal balance;
+
+    @Column(name = "password")
+    @NotNull(message = "40017")
+    private String password;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     private List<Order> orders;
@@ -74,5 +78,21 @@ public class User extends Identifiable{
     public void addOrder(Order order) {
         orders.add(order);
         order.setUser(this);
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

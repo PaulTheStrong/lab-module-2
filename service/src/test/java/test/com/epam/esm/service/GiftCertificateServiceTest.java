@@ -16,19 +16,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,12 +87,12 @@ public class GiftCertificateServiceTest {
         when(mockCertificateRepository.findById(0)).thenReturn(Optional.of(certificate1));
         when(mockCertificateRepository.findById(1)).thenReturn(Optional.of(certificate2));
 
-        when(mockCertificateRepository.findAll(1, 10)).thenReturn(Arrays.asList(TEST_GIFT_CERTIFICATES));
+        when(mockCertificateRepository.findAll(PageRequest.of(1, 10))).thenReturn(new PageImpl<>(Arrays.asList(TEST_GIFT_CERTIFICATES)));
 
         when(mockCertificateRepository.findById(certificate1.getId())).thenReturn(Optional.of(certificate1));
         when(mockCertificateRepository.findById(certificate2.getId())).thenReturn(Optional.of(certificate2));
 
-        when(mockCertificateRepository.save(certificate1)).thenReturn(Optional.of(certificate1));
+        when(mockCertificateRepository.save(certificate1)).thenReturn(certificate1);
     }
 
     @Test
@@ -112,7 +108,7 @@ public class GiftCertificateServiceTest {
 
     @Test
     public void testGetAllCertificatesWhenRepositoryEmptyShouldReturnEmptyList() {
-        when(mockCertificateRepository.findAll(1, 10)).thenReturn(Collections.EMPTY_LIST);
+        when(mockCertificateRepository.findAll(PageRequest.of(1, 10))).thenReturn(Page.empty());
 
         List<GiftCertificateDto> result = service.getCertificates(1, 10);
 
@@ -148,7 +144,7 @@ public class GiftCertificateServiceTest {
         Integer firstTagId = firstTag.getId();
 
         when(mockTagRepository.findById(firstTagId)).thenReturn(Optional.of(firstTag));
-        when(mockCertificateRepository.save(testGiftCertificate)).thenReturn(Optional.of(testGiftCertificate));
+        when(mockCertificateRepository.save(testGiftCertificate)).thenReturn(testGiftCertificate);
 
         GiftCertificateDto giftCertificateDto = service.addCertificate(testDto);
 
@@ -161,8 +157,8 @@ public class GiftCertificateServiceTest {
     public void testGetWithParametersThrowServiceExceptionWhenSortTypesMoreThanSortColumns() {
         ServiceException serviceException = assertThrows(ServiceException.class,
                 () -> service.getWithParameters(Optional.empty(), Optional.empty(),
-                        Arrays.asList("a", "b"), Arrays.asList("a", "b", "c"),
-                        1, 10));
+                        Arrays.asList("a", "b"), Arrays.asList("a", "b", "c"), 1, 10
+                        ));
         assertEquals(ExceptionCodes.SORT_TYPES_MUST_BE_LESS_OR_EQUALS_THAN_COLUMNS, serviceException.getErrorCode());
     }
 
@@ -191,7 +187,7 @@ public class GiftCertificateServiceTest {
         when(mockTagRepository.findById(1)).thenReturn(Optional.of(TEST_TAGS[0]));
         when(mockTagRepository.findById(2)).thenReturn(Optional.of(TEST_TAGS[1]));
         when(mockTagRepository.findByName(tagByName.getName())).thenReturn(Optional.of(tagByName));
-        when(mockTagRepository.save(tagByName)).thenReturn(Optional.of(new Tag(3, "beauty")));
+        when(mockTagRepository.save(tagByName)).thenReturn(new Tag(3, "beauty"));
         when(mockDtoMapper.giftCertificateToDto(oldCertificate)).thenReturn(giftCertificateDto);
 
         GiftCertificateDto actual = service.updateCertificate(giftCertificateDto, 1);

@@ -1,17 +1,15 @@
 package com.epam.esm.repository.api;
 
-import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Optional;
 
 /**
- * Repository for {@link User} entity. May perform {@link Findable} and {@link Countable} operations.
+ * Repository for {@link User} entity.
  */
-public interface UserRepository extends Findable<User>, Countable {
-
-    /**
-     Get the most widely used tag of a user with the highest cost of all orders
-     */
-    Optional<Tag> findMostUsedTagOfUserWithHighestCostOfAllOrders();
+@EnableJpaAuditing
+public interface UserRepository extends PagingAndSortingRepository<User, Integer> {
+    Optional<User> findByUsername(String username);
 }

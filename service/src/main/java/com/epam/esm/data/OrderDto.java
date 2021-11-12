@@ -3,7 +3,6 @@ package com.epam.esm.data;
 import com.epam.esm.entities.GiftCertificate;
 import com.epam.esm.entities.Order;
 import lombok.Data;
-import org.springframework.hateoas.EntityModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

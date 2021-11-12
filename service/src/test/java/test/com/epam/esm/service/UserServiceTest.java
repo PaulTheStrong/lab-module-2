@@ -8,15 +8,16 @@ import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
 import com.epam.esm.exception.ServiceException;
 import com.epam.esm.repository.api.OrderRepository;
-import com.epam.esm.repository.api.UserOrderUtil;
+import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.repository.api.UserRepository;
 import com.epam.esm.service.UserService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
@@ -42,10 +43,11 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private UserOrderUtil userOrderUtil;
+    private TagRepository tagRepository;
 
     @InjectMocks
     private UserService userService;
+
 
     private static final List<Order> FIRST_USER_ORDERS = new ArrayList<>(Arrays.asList(
             new Order(1, new BigDecimal(120), LocalDateTime.now(), null, new GiftCertificate()),
@@ -87,7 +89,7 @@ public class UserServiceTest {
 
     @Test
     public void testGetUsersShouldReturnAllUsers() {
-        when(userRepository.findAll(1, 10)).thenReturn(USERS);
+        when(userRepository.findAll(PageRequest.of(1, 10))).thenReturn(new PageImpl<>(USERS));
 
         List<User> users = userService.getUsers(1, 10);
 
@@ -97,7 +99,7 @@ public class UserServiceTest {
     @Test
     public void testGetUserOrdersShouldReturnUserOrdersWhenUserExists() {
         when(userRepository.findById(1)).thenReturn(Optional.of(USERS.get(0)));
-        when(userOrderUtil.getUserOrders(1, 1, 10)).thenReturn(FIRST_USER_ORDERS);
+        when(orderRepository.getUserOrders(1, PageRequest.of(1, 10))).thenReturn(new PageImpl<>(FIRST_USER_ORDERS));
 
         List<OrderDto> actual = userService.getUserOrders(1, 1, 10);
         assertAll(
@@ -144,20 +146,20 @@ public class UserServiceTest {
     @Test
     public void testGetMostUsedTagShouldReturnTagWhenRepositoryFound() {
         Tag expected = new Tag(1, "hello");
-        when(userRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders()).thenReturn(Optional.of(expected));
+        when(tagRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders()).thenReturn(Optional.of(expected));
         assertEquals(expected.getId(), 1);
         assertEquals(expected.getName(), "hello");
     }
 
     @Test
     public void testGetMostUsedTagShouldThrowExceptionWhenTagNotFound() {
-        when(userRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders()).thenReturn(Optional.empty());
+        when(tagRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders()).thenReturn(Optional.empty());
         assertThrows(ServiceException.class, () -> userService.getMostUsedTagOfUserWithHighestCostOfAllOrders());
     }
 
     @Test
     public void testUserPageInfoShouldReturnPageInfoWhenPositiveParametersPassed() {
-        when(userRepository.countAll()).thenReturn(30);
+        when(userRepository.count()).thenReturn(30L);
         PageInfo expected = new PageInfo(20, 2, 30);
         PageInfo actual = userService.userPageInfo(2, 20);
         assertEquals(expected.getPageSize(), actual.getPageSize());
@@ -167,7 +169,7 @@ public class UserServiceTest {
 
     @Test
     public void testUserOrderPageInfoShouldReturnPageInfoWhenPositiveParametersPassed() {
-        when(userOrderUtil.countUserOrders(1)).thenReturn(2);
+        when(orderRepository.countUserOrders(1)).thenReturn(2);
         PageInfo expected = new PageInfo(1, 1, 2);
         PageInfo actual = userService.userOrdersPageInfo(1, 1, 1);
         assertEquals(expected.getPageSize(), actual.getPageSize());

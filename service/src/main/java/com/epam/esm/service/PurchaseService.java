@@ -18,8 +18,8 @@ import java.util.Optional;
 
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
-import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_ORDER;
 import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
+
 
 @Service
 @Transactional
@@ -47,16 +47,12 @@ public class PurchaseService {
      * {@link User} doesn't have enough money on balance.
      */
     public OrderDto purchaseCertificate(int userId, int certificateId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        Optional<GiftCertificate> certificateOptional = giftCertificateRepository.findById(certificateId);
-        if (!certificateOptional.isPresent()) {
-            throw new ServiceException(CERTIFICATE_NOT_FOUND, certificateId);
-        }
-        GiftCertificate certificate = certificateOptional.get();
-        User user = userOptional.get();
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
+        GiftCertificate certificate = giftCertificateRepository
+                .findById(certificateId)
+                .orElseThrow(() -> new ServiceException(CERTIFICATE_NOT_FOUND, certificateId));
         BigDecimal balance = user.getBalance();
         BigDecimal price = certificate.getPrice();
         if (balance.compareTo(price) < 0) {
@@ -66,11 +62,8 @@ public class PurchaseService {
         user.setBalance(newBalance);
         LocalDateTime now = LocalDateTime.now();
         Order order = new Order(null, price, now, user, certificate);
-        Optional<Order> savedOrder = orderRepository.save(order);
-        if (!savedOrder.isPresent()) {
-            throw new ServiceException(UNABLE_TO_SAVE_ORDER);
-        }
-        return new OrderDto(savedOrder.get());
+        Order savedOrder = orderRepository.save(order);
+        return new OrderDto(savedOrder);
     }
 
 }

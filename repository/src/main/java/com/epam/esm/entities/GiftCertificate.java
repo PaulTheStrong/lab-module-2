@@ -1,6 +1,5 @@
 package com.epam.esm.entities;
 
-import com.epam.esm.entities.audit.certificate.GiftCertificateListener;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
@@ -11,10 +10,12 @@ import javax.persistence.EntityListeners;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreRemove;
-import javax.persistence.PreUpdate;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name="gift_certificate")
-@EntityListeners(GiftCertificateListener.class)
 public class GiftCertificate extends Identifiable {
 
     @Column(name="name")

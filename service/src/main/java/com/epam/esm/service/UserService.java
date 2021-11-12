@@ -3,39 +3,58 @@ package com.epam.esm.service;
 import com.epam.esm.data.OrderDto;
 import com.epam.esm.data.PageInfo;
 import com.epam.esm.entities.Order;
+import com.epam.esm.entities.Role;
 import com.epam.esm.entities.Tag;
 import com.epam.esm.entities.User;
 import com.epam.esm.exception.ServiceException;
-import com.epam.esm.repository.api.GiftCertificateRepository;
 import com.epam.esm.repository.api.OrderRepository;
-import com.epam.esm.repository.api.UserOrderUtil;
+import com.epam.esm.repository.api.RoleRepository;
+import com.epam.esm.repository.api.TagRepository;
 import com.epam.esm.repository.api.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.epam.esm.security.ApplicationSecurityUserDetails;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.exception.ExceptionCodes.USER_DOESNT_HAVE_THIS_ORDER;
 import static com.epam.esm.exception.ExceptionCodes.USER_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.USER_WITH_SUCH_USERNAME_EXISTS;
 
 @Transactional
 @Service
-public class UserService {
+@RequiredArgsConstructor
+@Slf4j
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserOrderUtil userOrderUtil;
     private final OrderRepository orderRepository;
-    private final GiftCertificateRepository giftCertificateRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TagRepository tagRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    public UserService(UserRepository userRepository, UserOrderUtil userOrderUtil, OrderRepository orderRepository, GiftCertificateRepository giftCertificateRepository) {
-        this.userRepository = userRepository;
-        this.userOrderUtil = userOrderUtil;
-        this.orderRepository = orderRepository;
-        this.giftCertificateRepository = giftCertificateRepository;
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        return new ApplicationSecurityUserDetails(
+                userOptional.orElseThrow(
+                        () -> new UsernameNotFoundException("User with username " + username + " not found")));
+    }
+
+    public User getUserByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        return userOptional.orElseThrow(() -> new ServiceException(USER_NOT_FOUND));
     }
 
     /**
@@ -46,7 +65,7 @@ public class UserService {
      * (pageNumber - 1) * pageSize
      */
     public List<User> getUsers(int pageNumber, int pageSize) {
-        return userRepository.findAll(pageNumber, pageSize);
+        return userRepository.findAll(PageRequest.of(pageNumber - 1, pageSize)).getContent();
     }
 
     /**
@@ -59,11 +78,10 @@ public class UserService {
      * @throws ServiceException if user doesn't exist.
      */
     public List<OrderDto> getUserOrders(int userId, int pageNumber, int pageSize) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        return userOrderUtil.getUserOrders(userId, pageNumber, pageSize)
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
+        return orderRepository.getUserOrders(userId, PageRequest.of(pageNumber - 1, pageSize))
                 .stream()
                 .map(OrderDto::new)
                 .collect(Collectors.toList());
@@ -77,18 +95,15 @@ public class UserService {
      * @throws ServiceException if {@link User} not found or {@link Order} not found.
      */
     public OrderDto getUserOrder(int userId, int orderId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        List<Order> orders = user.get().getOrders();
-        Optional<Order> orderOptional = orders.stream()
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
+        List<Order> orders = user.getOrders();
+        Order userOrder = orders.stream()
                 .filter(order -> order.getId() == orderId)
-                .findFirst();
-        if (!orderOptional.isPresent()) {
-            throw new ServiceException(USER_DOESNT_HAVE_THIS_ORDER);
-        }
-        return new OrderDto(orderOptional.get());
+                .findFirst()
+                .orElseThrow(() -> new ServiceException(USER_DOESNT_HAVE_THIS_ORDER));
+        return new OrderDto(userOrder);
     }
 
     /**
@@ -98,28 +113,38 @@ public class UserService {
      * @throws ServiceException if {@link User} not found
      */
     public User getUserById(int userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        return user.get();
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
     }
 
     public Tag getMostUsedTagOfUserWithHighestCostOfAllOrders() {
-        Optional<Tag> tag = userRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders();
-        if (!tag.isPresent()) {
-            throw new ServiceException("No orders in database");
-        }
-        return tag.get();
+        return tagRepository
+                .findMostUsedTagOfUserWithHighestCostOfAllOrders()
+                .orElseThrow(() -> new ServiceException("No orders in database"));
     }
 
     public PageInfo userPageInfo(int pageNumber, int pageSize) {
-        int usersCount = userRepository.countAll();
+        int usersCount = (int)userRepository.count();
         return new PageInfo(pageSize, pageNumber, usersCount);
     }
 
     public PageInfo userOrdersPageInfo(int userId, int pageNumber, int pageSize) {
-        int userOrdersCount  = userOrderUtil.countUserOrders(userId);
+        int userOrdersCount  = orderRepository.countUserOrders(userId);
         return new PageInfo(pageSize, pageNumber, userOrdersCount);
+    }
+
+    public User register(User user) {
+        Optional<User> userOptional = userRepository.findByUsername(user.getUsername());
+        if (userOptional.isPresent()) {
+            throw new ServiceException(USER_WITH_SUCH_USERNAME_EXISTS);
+        }
+        user.setBalance(BigDecimal.ZERO);
+        user.setOrders(Collections.emptyList());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Optional<Role> role = roleRepository.findRoleByName(ApplicationSecurityUserDetails.USER);
+        user.setRole(role.get());
+        log.info("User {} has been registered", user.getUsername());
+        return userRepository.save(user);
     }
 }

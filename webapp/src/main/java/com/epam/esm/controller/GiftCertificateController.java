@@ -12,6 +12,7 @@ import com.epam.esm.validator.SaveDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Min;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +58,7 @@ public class GiftCertificateController {
      * @return {@link GiftCertificateDto} object with tags associated with requested gift certificate.
      */
     @GetMapping(value = "/{id}")
+    @PreAuthorize("permitAll()")
     public GiftCertificateModel getById(@PathVariable int id) {
         GiftCertificateDto certificate = giftCertificateService.getById(id);
         return giftCertificateModelAssembler.toModel(certificate);
@@ -69,6 +72,7 @@ public class GiftCertificateController {
      * @return Filtered {@link List} of {@link GiftCertificateDto} if any of the parameters is presented.
      * Otherwise, all {@link GiftCertificateDto}s are returned.
      */
+    @PreAuthorize("permitAll()")
     @GetMapping
     public CollectionModel<GiftCertificateModel> getCertificates(
             @RequestParam Optional<String> nameOrDescription,
@@ -107,6 +111,7 @@ public class GiftCertificateController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('ADMIN')")
     public GiftCertificateModel addCertificate(@Validated(SaveDto.class) @RequestBody GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto certificate = giftCertificateService.addCertificate(giftCertificateDto);
         return giftCertificateModelAssembler.toModel(certificate);
@@ -119,6 +124,7 @@ public class GiftCertificateController {
      * @return Updated {@link GiftCertificateDto}.
      */
     @PatchMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public GiftCertificateModel updateCertificate(@Validated(PatchDto.class) @RequestBody GiftCertificateDto giftCertificateDto, @PathVariable int id) {
         GiftCertificateDto certificate = giftCertificateService.updateCertificate(giftCertificateDto, id);
         return giftCertificateModelAssembler.toModel(certificate);
@@ -130,6 +136,7 @@ public class GiftCertificateController {
      */
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteCertificate(@PathVariable int id) {
         giftCertificateService.deleteCertificate(id);
     }
