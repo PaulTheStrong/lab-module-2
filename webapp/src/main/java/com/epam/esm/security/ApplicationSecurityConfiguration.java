@@ -1,6 +1,7 @@
 package com.epam.esm.security;
 
-import com.epam.esm.filter.CustomAuthenticationFilter;
+import com.epam.esm.filter.JwtGeneratorFilter;
+import com.epam.esm.filter.ExceptionHandlerFilter;
 import com.epam.esm.filter.JwtCheckerFilter;
 import com.epam.esm.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,8 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -33,24 +33,25 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-    private JwtCheckerFilter authorizationFilter;
-    private CustomAuthenticationFilter authenticationFilter;
+    private JwtCheckerFilter jwtCheckerFilter;
+    private JwtGeneratorFilter authenticationFilter;
     private final SecurityErrorHandler securityErrorHandler;
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
 
     @Value("${spring.mvc.servlet.path}")
     private String SERVLET_PATH;
 
     @Bean
-    public CustomAuthenticationFilter authenticationFilter(AuthenticationManager manager, ObjectMapper objectMapper) {
-        authenticationFilter = new CustomAuthenticationFilter(objectMapper, manager);
+    public JwtGeneratorFilter authenticationFilter(AuthenticationManager manager, ObjectMapper objectMapper) {
+        authenticationFilter = new JwtGeneratorFilter(objectMapper, manager, securityErrorHandler );
         authenticationFilter.setFilterProcessesUrl(SERVLET_PATH + "/login");
         return authenticationFilter;
     }
 
     @Bean
     public JwtCheckerFilter authorizationFilter(ObjectMapper objectMapper) {
-        authorizationFilter = new JwtCheckerFilter(objectMapper, userDetailsService());
-        return authorizationFilter;
+        jwtCheckerFilter = new JwtCheckerFilter(objectMapper, userDetailsService());
+        return jwtCheckerFilter;
     }
 
     @Override
@@ -68,9 +69,11 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
                 .exceptionHandling()
                 .accessDeniedHandler(securityErrorHandler)
                 .authenticationEntryPoint(securityErrorHandler)
+            .and().formLogin().failureHandler(securityErrorHandler)
             .and()
-            .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(authorizationFilter, CustomAuthenticationFilter.class);
+            .addFilter(authenticationFilter)
+            .addFilterBefore(jwtCheckerFilter, JwtGeneratorFilter.class)
+            .addFilterBefore(exceptionHandlerFilter, CorsFilter.class);
     }
 
     @Bean

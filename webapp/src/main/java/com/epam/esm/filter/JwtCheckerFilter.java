@@ -3,13 +3,12 @@ package com.epam.esm.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.epam.esm.exception.HttpErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,9 +38,7 @@ public class JwtCheckerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals(SERVLET_PATH + "/login")) {
-            filterChain.doFilter(request, response);
-        } else {
+        if (!request.getRequestURI().equals(SERVLET_PATH + "/login")) {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 try {
@@ -56,22 +53,13 @@ public class JwtCheckerFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     logger.info("User " + username + " passed right token. Role " + role);
-                    filterChain.doFilter(request, response);
+                } catch (JWTVerificationException e) {
+                    throw e;
                 } catch (Exception e) {
-                    handleException(response, e);
+                    throw new FilterException(e);
                 }
-            } else {
-                filterChain.doFilter(request, response);
             }
         }
-    }
-
-    private void handleException(HttpServletResponse response, Exception e) throws IOException {
-        HttpErrorResponse errorResponse = new HttpErrorResponse("403", e.getMessage());
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE + "; charset=UTF-8");
-        String errorResponseString = objectMapper.writeValueAsString(errorResponse);
-        response.getWriter().print(errorResponseString);
+        filterChain.doFilter(request, response);
     }
 }

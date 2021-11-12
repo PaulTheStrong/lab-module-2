@@ -31,4 +31,9 @@ public class ExceptionCodes {
     public static final String NOT_ENOUGH_MONEY = "40902";
     public static final String TAG_ALREADY_EXISTS = "40903";
     public static final String USER_WITH_SUCH_USERNAME_EXISTS = "40904";
+    public static final String TOKEN_EXPIRED = "40302";
+    public static final String NOT_ENOUGH_RIGHTS = "40303";
+    public static final String ACCESS_DENIED = "40304";
+    public static final String INVALID_USERNAME_OR_PASSWORD = "40101";
+    public static final String INVALID_TOKEN = "40102";
 }

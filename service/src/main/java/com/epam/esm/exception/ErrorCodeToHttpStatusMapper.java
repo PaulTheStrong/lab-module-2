@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.epam.esm.exception.ExceptionCodes.ACCESS_DENIED;
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DESCRIPTION_LENGTH_CONSTRAINT;
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DURATION_MUST_BE_POSITIVE;
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_DURATION_MUST_BE_SPECIFIED;
@@ -15,7 +16,10 @@ import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_POSITIVE;
 import static com.epam.esm.exception.ExceptionCodes.CERTIFICATE_PRICE_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.CONTENT_MEDIA_TYPE_NOT_SUPPORTED;
+import static com.epam.esm.exception.ExceptionCodes.INVALID_TOKEN;
+import static com.epam.esm.exception.ExceptionCodes.INVALID_USERNAME_OR_PASSWORD;
 import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_MONEY;
+import static com.epam.esm.exception.ExceptionCodes.NOT_ENOUGH_RIGHTS;
 import static com.epam.esm.exception.ExceptionCodes.ORDER_NOT_FOUND;
 import static com.epam.esm.exception.ExceptionCodes.PAGE_MUST_BE_POSITIVE;
 import static com.epam.esm.exception.ExceptionCodes.PAGE_SIZE_MUST_BE_POSITIVE;
@@ -25,6 +29,7 @@ import static com.epam.esm.exception.ExceptionCodes.TAG_ALREADY_EXISTS;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NAME_OR_ID_MUST_BE_SPECIFIED;
 import static com.epam.esm.exception.ExceptionCodes.TAG_NOT_FOUND;
+import static com.epam.esm.exception.ExceptionCodes.TOKEN_EXPIRED;
 import static com.epam.esm.exception.ExceptionCodes.TYPE_MISMATCH;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_DELETE_ASSOCIATED_TAG;
 import static com.epam.esm.exception.ExceptionCodes.UNABLE_TO_SAVE_CERTIFICATE;
@@ -76,6 +81,18 @@ public class ErrorCodeToHttpStatusMapper {
             USER_WITH_SUCH_USERNAME_EXISTS
     ));
 
+    private static final Set<String> UNAUTHORIZED = new HashSet<>(Arrays.asList(
+            INVALID_USERNAME_OR_PASSWORD,
+            INVALID_TOKEN
+    ));
+
+    private static final Set<String> FORBIDDEN = new HashSet<>(Arrays.asList(
+            TOKEN_EXPIRED,
+            NOT_ENOUGH_RIGHTS,
+            ACCESS_DENIED
+    ));
+
+
 
     public HttpStatus errorCodeToStatus(String errorCode) {
         if (BAD_REQUEST.contains(errorCode)) {
@@ -86,6 +103,12 @@ public class ErrorCodeToHttpStatusMapper {
         }
         if (CONFLICT.contains(errorCode)) {
             return HttpStatus.CONFLICT;
+        }
+        if (UNAUTHORIZED.contains(errorCode)) {
+            return HttpStatus.UNAUTHORIZED;
+        }
+        if (FORBIDDEN.contains(errorCode)) {
+            return HttpStatus.FORBIDDEN;
         }
         if (CONTENT_MEDIA_TYPE_NOT_SUPPORTED.equals(errorCode)) {
             return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
