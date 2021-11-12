@@ -5,6 +5,7 @@ import com.epam.esm.hateoas.assembler.TagModelAssembler;
 import com.epam.esm.hateoas.model.TagModel;
 import com.epam.esm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -21,6 +22,7 @@ public class CrossEntityController {
     }
 
     @GetMapping("/most_popular_tag")
+    @PreAuthorize("permitAll()")
     public TagModel getMostUsedTagOfUserWithHighestCostOfAllOrders() {
         Tag tag = userService.getMostUsedTagOfUserWithHighestCostOfAllOrders();
         return tagModelAssembler.toModel(tag);

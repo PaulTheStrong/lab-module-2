@@ -16,6 +16,7 @@ import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +64,7 @@ public class UserController {
      * (pageNumber - 1) * pageSize
      */
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public CollectionModel<UserModel> getAllUsers(
             @RequestParam(defaultValue = START_PAGE) @Min(value = 1, message = PAGE_MUST_BE_POSITIVE) int page,
             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(value = 1, message = PAGE_SIZE_MUST_BE_POSITIVE) int pageSize) {
@@ -79,6 +81,7 @@ public class UserController {
      * @return {@link UserModel} with specified id
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') AND #id == principal.id)")
     public UserModel getUserById(@PathVariable int id) {
         User user = userService.getUserById(id);
         UserModel userModel = userModelAssembler.toModel(user);
@@ -94,6 +97,7 @@ public class UserController {
      * (pageNumber - 1) * pageSize
      */
     @GetMapping("/{id}/orders")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') AND #id == principal.id)")
     public CollectionModel<OrderModel> getUserOrders(
             @PathVariable int id,
             @RequestParam(defaultValue = START_PAGE) @Min(value = 1, message = PAGE_MUST_BE_POSITIVE) int page,
@@ -112,6 +116,7 @@ public class UserController {
      * @return {@link OrderModel} associated with {@link User} with specified id.
      */
     @GetMapping("/{userId}/orders/{orderId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') AND #id == principal.id)")
     public OrderModel getUserOrder(@PathVariable int userId, @PathVariable int orderId) {
         OrderDto userOrder = userService.getUserOrder(userId, orderId);
         OrderModel orderModel = orderModelAssembler.toModel(userOrder);
@@ -127,6 +132,7 @@ public class UserController {
      * @return newly created {@link OrderModel}
      */
     @PostMapping("/{userId}/orders")
+    @PreAuthorize("hasRole('USER') AND #id == principal.id")
     public OrderModel purchaseCertificate(
             @PathVariable int userId,
             @RequestBody PurchaseData purchaseData
@@ -138,6 +144,7 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("permitAll()")
     public UserModel register(@RequestBody User user) {
         User savedUser = userService.register(user);
         UserModel userModel = userModelAssembler.toModel(savedUser);

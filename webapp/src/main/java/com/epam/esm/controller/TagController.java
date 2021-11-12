@@ -9,6 +9,8 @@ import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
@@ -50,6 +53,7 @@ public class TagController {
      * @return Tag object from database
      */
     @GetMapping(value = "/{id}")
+    @PreAuthorize("permitAll()")
     public TagModel getById(@PathVariable int id) {
         Tag tag = tagService.getById(id);
         return tagModelAssembler.toModel(tag);
@@ -59,6 +63,7 @@ public class TagController {
      * @return List of all Tags stored in database.
      */
     @GetMapping
+    @PreAuthorize("permitAll()")
     public CollectionModel<TagModel> getAll(
             @RequestParam(defaultValue = START_PAGE) @Min(value = 1, message = PAGE_MUST_BE_POSITIVE) int page,
             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) @Min(value = 1, message = PAGE_SIZE_MUST_BE_POSITIVE) int pageSize) {
@@ -75,6 +80,7 @@ public class TagController {
      */
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('ADMIN')")
     public TagModel addTag(@Valid @RequestBody Tag tag) {
         Tag saved = tagService.save(tag);
         return tagModelAssembler.toModel(saved);
@@ -86,6 +92,7 @@ public class TagController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteTag(@PathVariable int id) {
         tagService.delete(id);
     }

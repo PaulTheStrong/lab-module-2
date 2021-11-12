@@ -14,11 +14,13 @@ public class ApplicationSecurityUserDetails implements UserDetails {
     public static final String USER = "USER";
     public static final String ADMIN = "ADMIN";
 
+    private final int id;
     private final String username;
     private final String password;
     private final GrantedAuthority authority;
 
     public ApplicationSecurityUserDetails(User user) {
+        id = user.getId();
         username = user.getUsername();
         password = user.getPassword();
         authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().getName());
@@ -61,5 +63,9 @@ public class ApplicationSecurityUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public int getId() {
+        return id;
     }
 }

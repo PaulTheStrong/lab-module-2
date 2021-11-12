@@ -1,16 +1,14 @@
 package com.epam.esm.config;
 
 import com.epam.esm.exception.ErrorCodeToHttpStatusMapper;
-import com.epam.esm.security.ApplicationSecurity;
+import com.epam.esm.security.ApplicationSecurityConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +20,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 @Configuration
 @ComponentScan(basePackages = {"com.epam.esm"})
 @EnableConfigurationProperties
-@Import(value = {RepositoryConfig.class, ApplicationSecurity.class})
+@Import(value = {RepositoryConfig.class, ApplicationSecurityConfiguration.class})
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
