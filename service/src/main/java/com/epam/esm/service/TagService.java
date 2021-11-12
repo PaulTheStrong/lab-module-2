@@ -40,11 +40,8 @@ public class TagService {
      * @throws ServiceException if {@link Tag} not exists.
      */
     public Tag getById(int id) {
-        Optional<Tag> tagOptional = tagRepository.findById(id);
-        if (!tagOptional.isPresent()) {
-            throw new ServiceException(TAG_NOT_FOUND, id);
-        }
-        return tagOptional.get();
+        return tagRepository.findById(id)
+                .orElseThrow(() -> new ServiceException(TAG_NOT_FOUND, id));
     }
 
     /**
@@ -55,14 +52,12 @@ public class TagService {
      * associated with {@link GiftCertificate}
      */
     public void delete(int id) {
-        Optional<Tag> tagOptional = tagRepository.findById(id);
-        if (!tagOptional.isPresent()) {
-            throw new ServiceException(TAG_NOT_FOUND, id);
-        }
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new ServiceException(TAG_NOT_FOUND, id));
         if (tagCertificateUtil.countAssociatedCertificates(id) != 0) {
             throw new ServiceException(UNABLE_TO_DELETE_ASSOCIATED_TAG, id);
         }
-        tagRepository.delete(tagOptional.get());
+        tagRepository.delete(tag);
     }
 
     /**

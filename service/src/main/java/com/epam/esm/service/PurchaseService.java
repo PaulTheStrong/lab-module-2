@@ -47,16 +47,12 @@ public class PurchaseService {
      * {@link User} doesn't have enough money on balance.
      */
     public OrderDto purchaseCertificate(int userId, int certificateId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        Optional<GiftCertificate> certificateOptional = giftCertificateRepository.findById(certificateId);
-        if (!certificateOptional.isPresent()) {
-            throw new ServiceException(CERTIFICATE_NOT_FOUND, certificateId);
-        }
-        GiftCertificate certificate = certificateOptional.get();
-        User user = userOptional.get();
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
+        GiftCertificate certificate = giftCertificateRepository
+                .findById(certificateId)
+                .orElseThrow(() -> new ServiceException(CERTIFICATE_NOT_FOUND, certificateId));
         BigDecimal balance = user.getBalance();
         BigDecimal price = certificate.getPrice();
         if (balance.compareTo(price) < 0) {

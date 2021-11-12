@@ -73,11 +73,9 @@ public class GiftCertificateService {
      * Otherwise, throws {@link ServiceException}.
      */
     public GiftCertificateDto updateCertificate(GiftCertificateDto certificateDto, int id) {
-        Optional<GiftCertificate> certificateOpt = certificateRepository.findById(id);
-        if (!certificateOpt.isPresent()) {
-            throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
-        }
-        GiftCertificate oldEntity = certificateOpt.get();
+        GiftCertificate oldEntity = certificateRepository
+                .findById(id)
+                .orElseThrow(() -> new ServiceException(CERTIFICATE_NOT_FOUND, id));
         Double duration = certificateDto.getDuration();
         if (duration != null) {
             oldEntity.setDuration(duration);
@@ -151,11 +149,9 @@ public class GiftCertificateService {
 
     private void getTagNameByIdAndSave(Tag tag) {
         int tagId = tag.getId();
-        Optional<Tag> tagByIdInRepository = tagRepository.findById(tagId);
-        if (!tagByIdInRepository.isPresent()) {
-            throw new ServiceException(TAG_NOT_FOUND, tagId);
-        }
-        Tag tagFromDatabase = tagByIdInRepository.get();
+        Tag tagFromDatabase = tagRepository
+                .findById(tagId)
+                .orElseThrow(() -> new ServiceException(TAG_NOT_FOUND, tagId));
         tag.setName(tagFromDatabase.getName());
         tag.setCertificates(tagFromDatabase.getCertificates());
     }
@@ -166,11 +162,10 @@ public class GiftCertificateService {
      * @throws ServiceException if not found.
      */
     public GiftCertificateDto getById(int id) {
-        Optional<GiftCertificate> certificate = certificateRepository.findById(id);
-        if (!certificate.isPresent()) {
-            throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
-        }
-        return dtoMapper.giftCertificateToDto(certificate.get());
+        GiftCertificate certificate = certificateRepository
+                .findById(id)
+                .orElseThrow(() -> new ServiceException(CERTIFICATE_NOT_FOUND, id));
+        return dtoMapper.giftCertificateToDto(certificate);
     }
 
     /**
@@ -244,11 +239,9 @@ public class GiftCertificateService {
      * @throws ServiceException if no {@link GiftCertificate} in database.
      */
     public void deleteCertificate(int id) {
-        Optional<GiftCertificate> certificateOptional = certificateRepository.findById(id);
-        if (!certificateOptional.isPresent()) {
-            throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
-        }
-        GiftCertificate giftCertificate = certificateOptional.get();
+        GiftCertificate giftCertificate = certificateRepository
+                .findById(id)
+                .orElseThrow(() -> new ServiceException(CERTIFICATE_NOT_FOUND, id));
         if (!giftCertificate.isAvailable()) {
             throw new ServiceException(CERTIFICATE_NOT_FOUND, id);
         }

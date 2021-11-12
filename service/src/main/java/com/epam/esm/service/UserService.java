@@ -47,19 +47,14 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (!userOptional.isPresent()) {
-            throw new UsernameNotFoundException("User with username " + username + " not found");
-        }
-        User user = userOptional.get();
-        return new ApplicationSecurityUserDetails(user);
+        return new ApplicationSecurityUserDetails(
+                userOptional.orElseThrow(
+                        () -> new UsernameNotFoundException("User with username " + username + " not found")));
     }
 
     public User getUserByUsername(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
-        if (!userOptional.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND);
-        }
-        return userOptional.get();
+        return userOptional.orElseThrow(() -> new ServiceException(USER_NOT_FOUND));
     }
 
     /**
@@ -83,10 +78,9 @@ public class UserService implements UserDetailsService {
      * @throws ServiceException if user doesn't exist.
      */
     public List<OrderDto> getUserOrders(int userId, int pageNumber, int pageSize) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
         return orderRepository.getUserOrders(userId, PageRequest.of(pageNumber - 1, pageSize))
                 .stream()
                 .map(OrderDto::new)
@@ -101,18 +95,15 @@ public class UserService implements UserDetailsService {
      * @throws ServiceException if {@link User} not found or {@link Order} not found.
      */
     public OrderDto getUserOrder(int userId, int orderId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        List<Order> orders = user.get().getOrders();
-        Optional<Order> orderOptional = orders.stream()
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
+        List<Order> orders = user.getOrders();
+        Order userOrder = orders.stream()
                 .filter(order -> order.getId() == orderId)
-                .findFirst();
-        if (!orderOptional.isPresent()) {
-            throw new ServiceException(USER_DOESNT_HAVE_THIS_ORDER);
-        }
-        return new OrderDto(orderOptional.get());
+                .findFirst()
+                .orElseThrow(() -> new ServiceException(USER_DOESNT_HAVE_THIS_ORDER));
+        return new OrderDto(userOrder);
     }
 
     /**
@@ -122,19 +113,15 @@ public class UserService implements UserDetailsService {
      * @throws ServiceException if {@link User} not found
      */
     public User getUserById(int userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new ServiceException(USER_NOT_FOUND, userId);
-        }
-        return user.get();
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ServiceException(USER_NOT_FOUND, userId));
     }
 
     public Tag getMostUsedTagOfUserWithHighestCostOfAllOrders() {
-        Optional<Tag> tag = tagRepository.findMostUsedTagOfUserWithHighestCostOfAllOrders();
-        if (!tag.isPresent()) {
-            throw new ServiceException("No orders in database");
-        }
-        return tag.get();
+        return tagRepository
+                .findMostUsedTagOfUserWithHighestCostOfAllOrders()
+                .orElseThrow(() -> new ServiceException("No orders in database"));
     }
 
     public PageInfo userPageInfo(int pageNumber, int pageSize) {
